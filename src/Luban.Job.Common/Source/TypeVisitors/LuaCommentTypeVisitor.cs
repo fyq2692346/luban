@@ -8,7 +8,7 @@ namespace Luban.Job.Common.TypeVisitors
 
         public string Accept(TBool type)
         {
-            return "bool";
+            return "boolean";
         }
 
         public string Accept(TByte type)
