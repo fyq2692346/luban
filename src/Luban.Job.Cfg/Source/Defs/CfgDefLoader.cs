@@ -26,11 +26,13 @@ namespace Luban.Job.Cfg.Defs
         private readonly List<string> _importExcelTableFiles = new();
         private readonly List<string> _importExcelEnumFiles = new();
         private readonly List<string> _importExcelBeanFiles = new();
-
+        private readonly List<string> _importExcelTypeFiles = new();
 
         private readonly List<Patch> _patches = new();
 
         private readonly List<Table> _cfgTables = new List<Table>();
+
+        private readonly Dictionary<string,CfgType> _cfgTypes = new Dictionary<string,CfgType>();
 
         private readonly List<Service> _cfgServices = new List<Service>();
 
@@ -49,15 +51,14 @@ namespace Luban.Job.Cfg.Defs
 
             RegisterModuleDefineHandler("table", AddTable);
             RegisterModuleDefineHandler("refgroup", AddRefGroup);
-
+            RegisterModuleDefineHandler("type", AddType);
 
             IsBeanFieldMustDefineId = false;
         }
 
         public Defines BuildDefines()
         {
-            var defines = new Defines()
-            {
+            var defines = new Defines() {
                 Patches = _patches,
                 Tables = _cfgTables,
                 Services = _cfgServices,
@@ -69,6 +70,7 @@ namespace Luban.Job.Cfg.Defs
         }
 
         private static readonly List<string> _excelImportRequireAttrs = new List<string> { "name", "type" };
+
         private void AddImportExcel(XElement e)
         {
             ValidAttrKeys(RootXml, e, null, _excelImportRequireAttrs);
@@ -77,21 +79,34 @@ namespace Luban.Job.Cfg.Defs
             {
                 throw new Exception("importexcel 属性name不能为空");
             }
+
             var type = XmlUtil.GetRequiredAttribute(e, "type");
             if (string.IsNullOrWhiteSpace(type))
             {
                 throw new Exception($"importexcel name:'{importName}' type属性不能为空");
             }
+
             switch (type)
             {
-                case "table": this._importExcelTableFiles.Add(importName); break;
-                case "enum": this._importExcelEnumFiles.Add(importName); break;
-                case "bean": this._importExcelBeanFiles.Add(importName); break;
-                default: throw new Exception($"importexcel name:'{importName}' type:'{type}' 不合法. 有效值为 table|enum|bean");
+                case "table":
+                    this._importExcelTableFiles.Add(importName);
+                    break;
+                case "enum":
+                    this._importExcelEnumFiles.Add(importName);
+                    break;
+                case "bean":
+                    this._importExcelBeanFiles.Add(importName);
+                    break;
+                case "type":
+                    this._importExcelTypeFiles.Add(importName);
+                    break;
+                default:
+                    throw new Exception($"importexcel name:'{importName}' type:'{type}' 不合法. 有效值为 table|enum|bean");
             }
         }
 
         private static readonly List<string> _patchRequireAttrs = new List<string> { "name" };
+
         private void AddPatch(XElement e)
         {
             ValidAttrKeys(RootXml, e, null, _patchRequireAttrs);
@@ -100,10 +115,12 @@ namespace Luban.Job.Cfg.Defs
             {
                 throw new Exception("patch 属性name不能为空");
             }
+
             if (this._patches.Any(b => b.Name == patchName))
             {
                 throw new Exception($"patch '{patchName}' 重复");
             }
+
             _patches.Add(new Patch(patchName));
         }
 
@@ -127,6 +144,7 @@ namespace Luban.Job.Cfg.Defs
             {
                 this._defaultGroups.AddRange(groupNames);
             }
+
             _cfgGroups.Add(new Group() { Names = groupNames });
         }
 
@@ -158,10 +176,12 @@ namespace Luban.Job.Cfg.Defs
                     }
                 }
             }
+
             if (!ValidGroup(groups, out var invalidGroup))
             {
                 throw new Exception($"service:'{name}' group:'{invalidGroup}' 不存在");
             }
+
             _cfgServices.Add(new Service() { Name = name, Manager = manager, Groups = groups, Refs = refs });
         }
 
@@ -180,6 +200,7 @@ namespace Luban.Job.Cfg.Defs
                     return false;
                 }
             }
+
             invalidGroup = null;
             return true;
         }
@@ -199,6 +220,7 @@ namespace Luban.Job.Cfg.Defs
                     {
                         throw new Exception($"定义文件:{defineFile} table:'{tableName}' mode={modeStr} 是单例表，不支持定义index属性");
                     }
+
                     mode = ETableMode.ONE;
                     break;
                 }
@@ -206,8 +228,10 @@ namespace Luban.Job.Cfg.Defs
                 {
                     if (!string.IsNullOrWhiteSpace(indexStr) && indexs.Length > 1)
                     {
-                        throw new Exception($"定义文件:'{defineFile}' table:'{tableName}' 是单主键表，index:'{indexStr}'不能包含多个key");
+                        throw new Exception(
+                            $"定义文件:'{defineFile}' table:'{tableName}' 是单主键表，index:'{indexStr}'不能包含多个key");
                     }
+
                     mode = ETableMode.MAP;
                     break;
                 }
@@ -226,6 +250,7 @@ namespace Luban.Job.Cfg.Defs
                     {
                         mode = ETableMode.LIST;
                     }
+
                     break;
                 }
                 default:
@@ -233,10 +258,13 @@ namespace Luban.Job.Cfg.Defs
                     throw new ArgumentException($"不支持的 mode:{modeStr}");
                 }
             }
+
             return mode;
         }
 
-        private readonly List<string> _tableOptionalAttrs = new List<string> { "index", "mode", "group", "patch_input", "comment", "define_from_file", "output", "options" };
+        private readonly List<string> _tableOptionalAttrs = new List<string>
+            { "index", "mode", "group", "patch_input", "comment", "define_from_file", "output", "options" };
+
         private readonly List<string> _tableRequireAttrs = new List<string> { "name", "value", "input" };
 
         private void AddTable(string defineFile, XElement e)
@@ -255,14 +283,17 @@ namespace Luban.Job.Cfg.Defs
             string tags = XmlUtil.GetOptionalAttribute(e, "tags");
             string output = XmlUtil.GetOptionalAttribute(e, "output");
             string options = XmlUtil.GetOptionalAttribute(e, "options");
-            AddTable(defineFile, name, module, valueType, index, mode, group, comment, defineFromFile, input, patchInput, tags, output, options);
+            AddTable(defineFile, name, module, valueType, index, mode, group, comment, defineFromFile, input,
+                patchInput, tags, output, options);
         }
 
-        private void AddTable(string defineFile, string name, string module, string valueType, string index, string mode, string group,
-            string comment, bool defineFromExcel, string input, string patchInput, string tags, string outputFileName, string options)
+
+        private void AddTable(string defineFile, string name, string module, string valueType, string index,
+            string mode, string group,
+            string comment, bool defineFromExcel, string input, string patchInput, string tags, string outputFileName,
+            string options)
         {
-            var p = new Table()
-            {
+            var p = new Table() {
                 Name = name,
                 Namespace = module,
                 ValueType = valueType,
@@ -279,10 +310,12 @@ namespace Luban.Job.Cfg.Defs
             {
                 throw new Exception($"定义文件:{defineFile} table:'{p.Name}' name:'{p.Name}' 不能为空");
             }
+
             if (string.IsNullOrWhiteSpace(valueType))
             {
                 throw new Exception($"定义文件:{defineFile} table:'{p.Name}' value_type:'{valueType}' 不能为空");
             }
+
             if (p.Groups.Count == 0)
             {
                 p.Groups = this._defaultGroups;
@@ -291,21 +324,25 @@ namespace Luban.Job.Cfg.Defs
             {
                 throw new Exception($"定义文件:{defineFile} table:'{p.Name}' group:'{invalidGroup}' 不存在");
             }
+
             p.InputFiles.AddRange(input.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)));
 
             if (!string.IsNullOrWhiteSpace(patchInput))
             {
-                foreach (var subPatchStr in patchInput.Split('|').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)))
+                foreach (var subPatchStr in patchInput.Split('|').Select(s => s.Trim())
+                             .Where(s => !string.IsNullOrWhiteSpace(s)))
                 {
                     var nameAndDirs = subPatchStr.Split(':');
                     if (nameAndDirs.Length != 2)
                     {
                         throw new Exception($"定义文件:{defineFile} table:'{p.Name}' patch_input:'{subPatchStr}' 定义不合法");
                     }
+
                     var patchDirs = nameAndDirs[1].Split(',', ';').ToList();
                     if (!p.PatchInputFiles.TryAdd(nameAndDirs[0], patchDirs))
                     {
-                        throw new Exception($"定义文件:{defineFile} table:'{p.Name}' patch_input:'{subPatchStr}' 子patch:'{nameAndDirs[0]}' 重复");
+                        throw new Exception(
+                            $"定义文件:{defineFile} table:'{p.Name}' patch_input:'{subPatchStr}' 子patch:'{nameAndDirs[0]}' 重复");
                     }
                 }
             }
@@ -313,17 +350,50 @@ namespace Luban.Job.Cfg.Defs
             _cfgTables.Add(p);
         }
 
+        private void AddType(string defineFile, XElement e)
+        {
+            ValidAttrKeys(defineFile, e, _tableOptionalAttrs, _tableRequireAttrs);
+            string name = XmlUtil.GetRequiredAttribute(e, "name");
+            string module = CurNamespace;
+            string alias = XmlUtil.GetOptionalAttribute(e, "alias");
+            AddType(defineFile, module, name, alias);
+        }
+
+        private void AddType(string defineFile, string module, string name, string alias)
+        {
+            var p = new CfgType() {
+                Namespace = module,
+                Name = name,
+                Alias = alias,
+            };
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new Exception($"定义文件:{defineFile} table:'{p.Name}' name:'{p.Name}' 不能为空");
+            }
+
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new Exception($"定义文件:{defineFile} table:'{p.Name}' value_type:'{alias}' 不能为空");
+            }
+
+            _cfgTypes.Add(name,p);
+        }
+
+
         private async Task<CfgBean> LoadTableValueTypeDefineFromFileAsync(Table table, string dataDir)
         {
             var inputFileInfos = await DataLoaderUtil.CollectInputFilesAsync(this.Agent, table.InputFiles, dataDir);
             var file = inputFileInfos[0];
             RawSheetTableDefInfo tableDefInfo;
-            if (!ExcelTableValueTypeDefInfoCacheManager.Instance.TryGetTableDefInfo(file.MD5, file.SheetName, out tableDefInfo))
+            if (!ExcelTableValueTypeDefInfoCacheManager.Instance.TryGetTableDefInfo(file.MD5, file.SheetName,
+                    out tableDefInfo))
             {
                 var source = new ExcelRowColumnDataSource();
-                var stream = new MemoryStream(await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5));
+                var stream =
+                    new MemoryStream(await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5));
                 tableDefInfo = source.LoadTableDefInfo(file.OriginFile, file.SheetName, stream);
-                ExcelTableValueTypeDefInfoCacheManager.Instance.AddTableDefInfoToCache(file.MD5, file.SheetName, tableDefInfo);
+                ExcelTableValueTypeDefInfoCacheManager.Instance.AddTableDefInfoToCache(file.MD5, file.SheetName,
+                    tableDefInfo);
             }
 
             var (valueType, tags) = DefUtil.ParseType(table.ValueType);
@@ -339,27 +409,34 @@ namespace Luban.Job.Cfg.Defs
                 parentType = string.Join(".", parentNamespace, parentName);
                 parentBean = _beans.FirstOrDefault(x => x.FullName == parentType);
             }
-            var cb = new CfgBean() { Namespace = valueTypeNamespace, Name = valueTypeName, Comment = "", Parent = parentType };
+
+            var cb = new CfgBean()
+                { Namespace = valueTypeNamespace, Name = valueTypeName, Comment = "", Parent = parentType };
             if (parentBean != null)
             {
                 foreach (var parentField in parentBean.Fields)
                 {
-                    if (!tableDefInfo.FieldInfos.Any(x => x.Key == parentField.Name && x.Value.Type == parentField.Type))
+                    if (!tableDefInfo.FieldInfos.Any(x =>
+                            x.Key == parentField.Name && x.Value.Type == parentField.Type))
                     {
-                        throw new Exception($"table:'{table.Name}' file:{file.OriginFile} title:缺失父类字段：'{parentField.Type} {parentField.Name}'");
+                        throw new Exception(
+                            $"table:'{table.Name}' file:{file.OriginFile} title:缺失父类字段：'{parentField.Type} {parentField.Name}'");
                     }
                 }
             }
 
             foreach (var (name, f) in tableDefInfo.FieldInfos)
             {
-                if (parentBean != null && parentBean.Fields.Any(x => x.Name == name && x.Type == f.Type))
+                var cType = _cfgTypes.TryGetValue(f.Type, out var cfgType) ? cfgType.Alias : f.Type;
+                
+                if (parentBean != null && parentBean.Fields.Any(x => x.Name == name && x.Type == cType))
                 {
                     continue;
                 }
-                var cf = new CfgField() { Name = name, Id = 0 };
 
-                string[] attrs = f.Type.Trim().Split('&').Select(s => s.Trim()).ToArray();
+                var cf = new CfgField() { Name = name, Id = 0 };
+               
+                string[] attrs = cType.Trim().Split('&').Select(s => s.Trim()).ToArray();
 
                 if (attrs.Length == 0 || string.IsNullOrWhiteSpace(attrs[0]))
                 {
@@ -369,14 +446,16 @@ namespace Luban.Job.Cfg.Defs
                 cf.Comment = f.Desc;
 
                 cf.Type = attrs[0];
-
+                
                 for (int i = 1; i < attrs.Length; i++)
                 {
                     var pair = attrs[i].Split('=', 2);
                     if (pair.Length != 2)
                     {
-                        throw new Exception($"table:'{table.Name}' file:{file.OriginFile} title:'{name}' attr:'{attrs[i]}' is invalid!");
+                        throw new Exception(
+                            $"table:'{table.Name}' file:{file.OriginFile} title:'{name}' attr:'{attrs[i]}' is invalid!");
                     }
+
                     var attrName = pair[0].Trim();
                     var attrValue = pair[1].Trim();
                     switch (attrName)
@@ -387,11 +466,13 @@ namespace Luban.Job.Cfg.Defs
                         case "range":
                         case "sep":
                         {
-                            throw new Exception($"table:'{table.Name}' file:{file.OriginFile} title:'{name}' attr:'{attrName}' 属于type的属性，必须用#分割，尝试'{cf.Type}#{attrs[i]}'");
+                            throw new Exception(
+                                $"table:'{table.Name}' file:{file.OriginFile} title:'{name}' attr:'{attrName}' 属于type的属性，必须用#分割，尝试'{cf.Type}#{attrs[i]}'");
                         }
                         case "group":
                         {
-                            cf.Groups = attrValue.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+                            cf.Groups = attrValue.Split(',').Select(s => s.Trim())
+                                .Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
                             break;
                         }
                         case "comment":
@@ -406,13 +487,15 @@ namespace Luban.Job.Cfg.Defs
                         }
                         default:
                         {
-                            throw new Exception($"table:'{table.Name}' file:{file.OriginFile} title:'{name}' attr:'{attrs[i]}' is invalid!");
+                            throw new Exception(
+                                $"table:'{table.Name}' file:{file.OriginFile} title:'{name}' attr:'{attrs[i]}' is invalid!");
                         }
                     }
                 }
 
                 cb.Fields.Add(cf);
             }
+
             return cb;
         }
 
@@ -436,10 +519,11 @@ namespace Luban.Job.Cfg.Defs
             {
                 return;
             }
-            var inputFileInfos = await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelTableFiles, dataDir);
 
-            var defTableRecordType = new DefBean(new CfgBean()
-            {
+            var inputFileInfos =
+                await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelTableFiles, dataDir);
+
+            var defTableRecordType = new DefBean(new CfgBean() {
                 Namespace = "__intern__",
                 Name = "__TableRecord__",
                 Parent = "",
@@ -448,8 +532,7 @@ namespace Luban.Job.Cfg.Defs
                 Sep = "",
                 TypeId = 0,
                 IsSerializeCompatible = false,
-                Fields = new List<Field>
-                {
+                Fields = new List<Field> {
                     new CfgField() { Name = "full_name", Type = "string" },
                     new CfgField() { Name = "value_type", Type = "string" },
                     new CfgField() { Name = "index", Type = "string" },
@@ -463,8 +546,7 @@ namespace Luban.Job.Cfg.Defs
                     new CfgField() { Name = "tags", Type = "string" },
                     new CfgField() { Name = "options", Type = "string" },
                 }
-            })
-            {
+            }) {
                 AssemblyBase = new DefAssembly("", null, new List<string>(), Agent),
             };
             defTableRecordType.PreCompile();
@@ -488,6 +570,7 @@ namespace Luban.Job.Cfg.Defs
                     {
                         throw new Exception($"file:{file.ActualFile} 定义了一个空的table类名");
                     }
+
                     string module = TypeUtil.GetNamespace(fullName);
                     string valueType = (data.GetField("value_type") as DString).Value.Trim();
                     string index = (data.GetField("index") as DString).Value.Trim();
@@ -500,8 +583,68 @@ namespace Luban.Job.Cfg.Defs
                     string tags = (data.GetField("tags") as DString).Value.Trim();
                     string outputFile = (data.GetField("output") as DString).Value.Trim();
                     string options = (data.GetField("options") as DString).Value.Trim();
-                    AddTable(file.OriginFile, name, module, valueType, index, mode, group, comment, isDefineFromExcel, inputFile, patchInput, tags, outputFile, options);
-                };
+                    AddTable(file.OriginFile, name, module, valueType, index, mode, group, comment, isDefineFromExcel,
+                        inputFile, patchInput, tags, outputFile, options);
+                }
+
+                ;
+            }
+        }
+
+        private async Task LoadTypeListFromFileAsync(string dataDir)
+        {
+            if (this._importExcelTypeFiles.Count == 0)
+            {
+                return;
+            }
+
+            var inputFileInfos =
+                await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelTypeFiles, dataDir);
+
+            var defTypeRecordType = new DefBean(new CfgBean() {
+                Namespace = "__intern__",
+                Name = "__TypeRecord__",
+                Parent = "",
+                Alias = "",
+                IsValueType = false,
+                Sep = "",
+                TypeId = 0,
+                IsSerializeCompatible = false,
+                Fields = new List<Field> {
+                    new CfgField() { Name = "full_name", Type = "string" },
+                    new CfgField() { Name = "alias", Type = "string" },
+                }
+            }) {
+                AssemblyBase = new DefAssembly("", null, new List<string>(), Agent),
+            };
+            defTypeRecordType.PreCompile();
+            defTypeRecordType.Compile();
+            defTypeRecordType.PostCompile();
+            var tableRecordType = TBean.Create(false, defTypeRecordType, null);
+
+            foreach (var file in inputFileInfos)
+            {
+                var source = new ExcelRowColumnDataSource();
+                var bytes = await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5);
+                (var actualFile, var sheetName) = FileUtil.SplitFileAndSheetName(FileUtil.Standardize(file.OriginFile));
+                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null);
+                foreach (var r in records)
+                {
+                    DBean data = r.Data;
+                    //s_logger.Info("== read text:{}", r.Data);
+                    string fullName = (data.GetField("full_name") as DString).Value.Trim();
+                    string name = TypeUtil.GetName(fullName);
+                    if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(name))
+                    {
+                        throw new Exception($"file:{file.ActualFile} 定义了一个空的table类名");
+                    }
+
+                    string module = TypeUtil.GetNamespace(fullName);
+                    string alias = (data.GetField("alias") as DString).Value.Trim();
+                    AddType(file.OriginFile, module, name, alias);
+                }
+
+                ;
             }
         }
 
@@ -511,13 +654,14 @@ namespace Luban.Job.Cfg.Defs
             {
                 return;
             }
-            var inputFileInfos = await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelEnumFiles, dataDir);
+
+            var inputFileInfos =
+                await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelEnumFiles, dataDir);
 
 
             var ass = new DefAssembly("", null, new List<string>(), Agent);
 
-            var enumItemType = new DefBean(new CfgBean()
-            {
+            var enumItemType = new DefBean(new CfgBean() {
                 Namespace = "__intern__",
                 Name = "__EnumItem__",
                 Parent = "",
@@ -526,16 +670,14 @@ namespace Luban.Job.Cfg.Defs
                 Sep = "",
                 TypeId = 0,
                 IsSerializeCompatible = false,
-                Fields = new List<Field>
-                {
+                Fields = new List<Field> {
                     new CfgField() { Name = "name", Type = "string" },
                     new CfgField() { Name = "alias", Type = "string" },
                     new CfgField() { Name = "value", Type = "string" },
                     new CfgField() { Name = "comment", Type = "string" },
                     new CfgField() { Name = "tags", Type = "string" },
                 }
-            })
-            {
+            }) {
                 AssemblyBase = ass,
             };
             ass.AddType(enumItemType);
@@ -543,8 +685,7 @@ namespace Luban.Job.Cfg.Defs
             enumItemType.Compile();
             enumItemType.PostCompile();
 
-            var defTableRecordType = new DefBean(new CfgBean()
-            {
+            var defTableRecordType = new DefBean(new CfgBean() {
                 Namespace = "__intern__",
                 Name = "__EnumInfo__",
                 Parent = "",
@@ -553,8 +694,7 @@ namespace Luban.Job.Cfg.Defs
                 Sep = "",
                 TypeId = 0,
                 IsSerializeCompatible = false,
-                Fields = new List<Field>
-                {
+                Fields = new List<Field> {
                     new CfgField() { Name = "full_name", Type = "string" },
                     new CfgField() { Name = "comment", Type = "string" },
                     new CfgField() { Name = "flags", Type = "bool" },
@@ -562,8 +702,7 @@ namespace Luban.Job.Cfg.Defs
                     new CfgField() { Name = "unique", Type = "bool" },
                     new CfgField() { Name = "items", Type = "list,__EnumItem__" },
                 }
-            })
-            {
+            }) {
                 AssemblyBase = ass,
             };
             ass.AddType(defTableRecordType);
@@ -589,20 +728,19 @@ namespace Luban.Job.Cfg.Defs
                     {
                         throw new Exception($"file:{file.ActualFile} 定义了一个空的enum类名");
                     }
+
                     string module = TypeUtil.GetNamespace(fullName);
 
                     DList items = (data.GetField("items") as DList);
 
-                    var curEnum = new PEnum()
-                    {
+                    var curEnum = new PEnum() {
                         Name = name,
                         Namespace = module,
                         IsFlags = (data.GetField("flags") as DBool).Value,
                         Tags = (data.GetField("tags") as DString).Value,
                         Comment = (data.GetField("comment") as DString).Value,
                         IsUniqueItemId = (data.GetField("unique") as DBool).Value,
-                        Items = items.Datas.Cast<DBean>().Select(d => new EnumItem()
-                        {
+                        Items = items.Datas.Cast<DBean>().Select(d => new EnumItem() {
                             Name = (d.GetField("name") as DString).Value,
                             Alias = (d.GetField("alias") as DString).Value,
                             Value = (d.GetField("value") as DString).Value,
@@ -611,7 +749,9 @@ namespace Luban.Job.Cfg.Defs
                         }).ToList(),
                     };
                     this._enums.Add(curEnum);
-                };
+                }
+
+                ;
             }
         }
 
@@ -621,13 +761,14 @@ namespace Luban.Job.Cfg.Defs
             {
                 return;
             }
-            var inputFileInfos = await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelBeanFiles, dataDir);
+
+            var inputFileInfos =
+                await DataLoaderUtil.CollectInputFilesAsync(this.Agent, this._importExcelBeanFiles, dataDir);
 
 
             var ass = new DefAssembly("", null, new List<string>(), Agent);
 
-            var defBeanFieldType = new DefBean(new CfgBean()
-            {
+            var defBeanFieldType = new DefBean(new CfgBean() {
                 Namespace = "__intern__",
                 Name = "__FieldInfo__",
                 Parent = "",
@@ -636,16 +777,14 @@ namespace Luban.Job.Cfg.Defs
                 Sep = "",
                 TypeId = 0,
                 IsSerializeCompatible = false,
-                Fields = new List<Field>
-                {
+                Fields = new List<Field> {
                     new CfgField() { Name = "name", Type = "string" },
                     new CfgField() { Name = "type", Type = "string" },
                     new CfgField() { Name = "group", Type = "string" },
                     new CfgField() { Name = "comment", Type = "string" },
                     new CfgField() { Name = "tags", Type = "string" },
                 }
-            })
-            {
+            }) {
                 AssemblyBase = ass,
             };
 
@@ -655,8 +794,7 @@ namespace Luban.Job.Cfg.Defs
 
             ass.AddType(defBeanFieldType);
 
-            var defTableRecordType = new DefBean(new CfgBean()
-            {
+            var defTableRecordType = new DefBean(new CfgBean() {
                 Namespace = "__intern__",
                 Name = "__BeanInfo__",
                 Parent = "",
@@ -665,18 +803,16 @@ namespace Luban.Job.Cfg.Defs
                 Sep = "",
                 TypeId = 0,
                 IsSerializeCompatible = false,
-                Fields = new List<Field>
-                {
+                Fields = new List<Field> {
                     new CfgField() { Name = "full_name", Type = "string" },
-                    new CfgField() {Name =  "parent", Type = "string" },
+                    new CfgField() { Name = "parent", Type = "string" },
                     new CfgField() { Name = "sep", Type = "string" },
                     new CfgField() { Name = "alias", Type = "string" },
                     new CfgField() { Name = "comment", Type = "string" },
                     new CfgField() { Name = "tags", Type = "string" },
                     new CfgField() { Name = "fields", Type = "list,__FieldInfo__" },
                 }
-            })
-            {
+            }) {
                 AssemblyBase = ass,
             };
             ass.AddType(defTableRecordType);
@@ -701,6 +837,7 @@ namespace Luban.Job.Cfg.Defs
                     {
                         throw new Exception($"file:'{file.ActualFile}' 定义了一个空bean类名");
                     }
+
                     string module = TypeUtil.GetNamespace(fullName);
 
                     string parent = (data.GetField("parent") as DString).Value.Trim();
@@ -709,8 +846,7 @@ namespace Luban.Job.Cfg.Defs
                     string comment = (data.GetField("comment") as DString).Value.Trim();
                     string tags = (data.GetField("tags") as DString).Value.Trim();
                     DList fields = data.GetField("fields") as DList;
-                    var curBean = new CfgBean()
-                    {
+                    var curBean = new CfgBean() {
                         Name = name,
                         Namespace = module,
                         Sep = sep,
@@ -726,21 +862,24 @@ namespace Luban.Job.Cfg.Defs
                             (b.GetField("comment") as DString).Value.Trim(),
                             (b.GetField("tags") as DString).Value.Trim(),
                             false
-                            )).ToList(),
+                        )).ToList(),
                     };
                     this._beans.Add(curBean);
-                };
+                }
+
+                ;
             }
         }
 
+
         public async Task LoadDefinesFromFileAsync(string dataDir)
         {
-            await Task.WhenAll(LoadTableListFromFileAsync(dataDir), LoadEnumListFromFileAsync(dataDir), LoadBeanListFromFileAsync(dataDir));
+            await Task.WhenAll(LoadTableListFromFileAsync(dataDir), LoadEnumListFromFileAsync(dataDir),
+                LoadBeanListFromFileAsync(dataDir), LoadTypeListFromFileAsync(dataDir));
             await LoadTableValueTypeDefinesFromFileAsync(dataDir);
         }
 
-        private static readonly List<string> _fieldOptionalAttrs = new()
-        {
+        private static readonly List<string> _fieldOptionalAttrs = new() {
             "ref",
             "path",
             "group",
@@ -761,6 +900,7 @@ namespace Luban.Job.Cfg.Defs
             {
                 typeStr = typeStr + "#(ref=" + refStr + ")";
             }
+
             string pathStr = XmlUtil.GetOptionalAttribute(e, "path");
             if (!string.IsNullOrWhiteSpace(pathStr))
             {
@@ -769,19 +909,18 @@ namespace Luban.Job.Cfg.Defs
 
             return CreateField(defineFile, XmlUtil.GetRequiredAttribute(e, "name"),
                 typeStr,
-                 XmlUtil.GetOptionalAttribute(e, "group"),
-                 XmlUtil.GetOptionalAttribute(e, "comment"),
-                 XmlUtil.GetOptionalAttribute(e, "tags"),
-                 false
-                );
+                XmlUtil.GetOptionalAttribute(e, "group"),
+                XmlUtil.GetOptionalAttribute(e, "comment"),
+                XmlUtil.GetOptionalAttribute(e, "tags"),
+                false
+            );
         }
 
         private Field CreateField(string defineFile, string name, string type, string group,
             string comment, string tags,
             bool ignoreNameValidation)
         {
-            var f = new CfgField()
-            {
+            var f = new CfgField() {
                 Name = name,
                 Groups = CreateGroups(group),
                 Comment = comment,
@@ -796,6 +935,7 @@ namespace Luban.Job.Cfg.Defs
             {
                 throw new Exception($"定义文件:{defineFile} field:'{name}' group:'{invalidGroup}' 不存在");
             }
+
             f.Type = type;
 
 
@@ -809,15 +949,16 @@ namespace Luban.Job.Cfg.Defs
             return f;
         }
 
-        private static readonly List<string> _beanOptinsAttrs = new List<string> { "parent", "value_type", "alias", "sep", "comment", "tags", "externaltype" };
+        private static readonly List<string> _beanOptinsAttrs = new List<string>
+            { "parent", "value_type", "alias", "sep", "comment", "tags", "externaltype" };
+
         private static readonly List<string> _beanRequireAttrs = new List<string> { "name" };
 
         override protected void AddBean(string defineFile, XElement e, string parent)
         {
             ValidAttrKeys(defineFile, e, _beanOptinsAttrs, _beanRequireAttrs);
             TryGetUpdateParent(e, ref parent);
-            var b = new CfgBean()
-            {
+            var b = new CfgBean() {
                 Name = XmlUtil.GetRequiredAttribute(e, "name"),
                 Namespace = CurNamespace,
                 Parent = parent,
@@ -840,9 +981,12 @@ namespace Luban.Job.Cfg.Defs
                     {
                         if (defineAnyChildBean)
                         {
-                            throw new LoadDefException($"定义文件:{defineFile} 类型:{b.FullName} 的多态子bean必须在所有成员字段 <var> 之后定义");
+                            throw new LoadDefException(
+                                $"定义文件:{defineFile} 类型:{b.FullName} 的多态子bean必须在所有成员字段 <var> 之后定义");
                         }
-                        b.Fields.Add(CreateField(defineFile, fe)); ;
+
+                        b.Fields.Add(CreateField(defineFile, fe));
+                        ;
                         break;
                     }
                     case "bean":
@@ -857,6 +1001,7 @@ namespace Luban.Job.Cfg.Defs
                     }
                 }
             }
+
             s_logger.Trace("add bean:{@bean}", b);
             _beans.Add(b);
 
@@ -874,8 +1019,7 @@ namespace Luban.Job.Cfg.Defs
         {
             ValidAttrKeys(defineFile, e, null, _refGroupRequireAttrs);
 
-            var refGroup = new RefGroup()
-            {
+            var refGroup = new RefGroup() {
                 Name = XmlUtil.GetRequiredAttribute(e, "name"),
                 Refs = XmlUtil.GetRequiredAttribute(e, "ref").Split(',').Select(s => s.Trim()).ToList(),
             };

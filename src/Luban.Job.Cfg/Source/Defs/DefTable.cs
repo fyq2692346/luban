@@ -52,7 +52,7 @@ namespace Luban.Job.Cfg.Defs
 
         public string Index { get; private set; }
 
-        public string ValueType { get; }
+        public string ValueType { get; private set; }
 
         public ETableMode Mode { get; }
 
@@ -112,7 +112,8 @@ namespace Luban.Job.Cfg.Defs
                     throw new Exception($"table:'{FullName}' patch_input patch:'{patchName}' 不存在");
                 }
             }
-
+            
+            
             if ((ValueTType = (TBean)ass.CreateType(Namespace, ValueType, false)) == null)
             {
                 throw new Exception($"table:'{FullName}' 的 value类型:'{ValueType}' 不存在");

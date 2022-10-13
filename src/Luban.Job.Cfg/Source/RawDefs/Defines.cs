@@ -14,5 +14,6 @@ namespace Luban.Job.Cfg.RawDefs
         public List<Service> Services { get; set; } = new();
 
         public List<RefGroup> RefGroups { get; set; } = new();
+
     }
 }

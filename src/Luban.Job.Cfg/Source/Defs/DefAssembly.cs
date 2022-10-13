@@ -65,7 +65,7 @@ namespace Luban.Job.Cfg.Defs
         public Dictionary<string, DefTable> CfgTablesByName { get; } = new();
 
         public Dictionary<string, DefTable> CfgTablesByFullName { get; } = new Dictionary<string, DefTable>();
-
+        
         public RawTextTable RawTextTable { get; } = new RawTextTable();
 
         public TextTable ExportTextTable { get; private set; }
@@ -103,11 +103,13 @@ namespace Luban.Job.Cfg.Defs
             }
         }
 
+       
         public DefTable GetCfgTable(string name)
         {
             return CfgTablesByFullName.TryGetValue(name, out var t) ? t : null;
         }
 
+        
         public void AddDataTable(DefTable table, List<Record> mainRecords, List<Record> patchRecords)
         {
             _recordsByTables[table.FullName] = new TableDataInfo(table, mainRecords, patchRecords);
@@ -275,7 +277,7 @@ namespace Luban.Job.Cfg.Defs
                 AddType(table);
                 AddCfgTable(table);
             }
-
+            
             if (!string.IsNullOrWhiteSpace(args.OutputTables))
             {
                 foreach (var tableFullName in SplitTableList(args.OutputTables))
