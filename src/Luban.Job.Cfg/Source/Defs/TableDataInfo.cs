@@ -172,6 +172,46 @@ namespace Luban.Job.Cfg.Defs
                     FinalRecords = mainRecords;
                     break;
                 }
+                case ETableMode.BASE:
+                {
+                    var recordMap = new Dictionary<DType, Record>();
+                    foreach (Record r in mainRecords)
+                    {
+                        DType key = r.Data.Fields[table.IndexFieldIdIndex];
+                        if (!recordMap.TryAdd(key, r))
+                        {
+                            throw new Exception($@"配置表 '{table.FullName}' 主文件 主键字段:'{table.Index}' 主键值:'{key}' 重复.
+        记录1 来自文件:{r.Source}
+        记录2 来自文件:{recordMap[key].Source}
+");
+                        }
+                    }
+                    if (patchRecords != null && patchRecords.Count > 0)
+                    {
+                        foreach (Record r in patchRecords)
+                        {
+                            DType key = r.Data.Fields[table.IndexFieldIdIndex];
+                            if (recordMap.TryGetValue(key, out var old))
+                            {
+                                if (overrideRecords.Contains(old))
+                                {
+                                    throw new Exception($"配置表 '{table.FullName}' 主文件 主键字段:'{table.Index}' 主键值:'{key}' 被patch多次覆盖，请检查patch是否有重复记录");
+                                }
+                                s_logger.Debug("配置表 {} 分支文件 主键:{} 覆盖 主文件记录", table.FullName, key);
+                                mainRecords[recordIndex[old]] = r;
+                            }
+                            else
+                            {
+                                mainRecords.Add(r);
+                            }
+                            overrideRecords.Add(r);
+                            recordMap[key] = r;
+                        }
+                    }
+                    FinalRecords = mainRecords;
+                    FinalRecordMap = recordMap;
+                    break;
+                }
                 default: throw new Exception($"unknown mode:{Table.Mode}");
             }
         }

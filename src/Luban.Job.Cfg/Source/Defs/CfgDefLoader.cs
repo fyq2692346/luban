@@ -240,6 +240,16 @@ namespace Luban.Job.Cfg.Defs
                     mode = ETableMode.LIST;
                     break;
                 }
+                case "base":
+                {
+                    if (!string.IsNullOrWhiteSpace(indexStr) && indexs.Length > 1)
+                    {
+                        throw new Exception(
+                            $"定义文件:'{defineFile}' table:'{tableName}' 是单主键表，index:'{indexStr}'不能包含多个key");
+                    }
+                    mode = ETableMode.BASE;
+                    break;
+                }
                 case "":
                 {
                     if (string.IsNullOrWhiteSpace(indexStr) || indexs.Length == 1)

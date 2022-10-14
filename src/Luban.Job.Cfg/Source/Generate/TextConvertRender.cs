@@ -22,7 +22,7 @@ namespace Luban.Job.Cfg.Generate
                 string dirName = table.FullName;
                 foreach (var record in records)
                 {
-                    var fileName = table.IsMapTable ?
+                    var fileName = (table.IsMapTable||table.IsBaseTable) ?
                         record.Data.GetField(table.IndexField.Name).Apply(ToStringVisitor2.Ins).Replace("\"", "").Replace("'", "")
                         : (++index).ToString();
                     var file = RenderFileUtil.GetOutputFileName(genType, $"{dirName}/{fileName}", ctx.GenArgs.OutputConvertFileExtension);

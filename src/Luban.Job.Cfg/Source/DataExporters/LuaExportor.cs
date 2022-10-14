@@ -31,6 +31,20 @@ namespace Luban.Job.Cfg.DataExporters
             s.Append('}');
         }
 
+        public void ExportTableBase(DefTable t, List<Record> records, StringBuilder s)
+        {
+            s.Append("return").AppendLine();
+            s.Append('{').AppendLine();
+            foreach (Record r in records)
+            {
+                DBean d = r.Data;
+                s.Append($"[{d.GetField(t.Index).Apply(ToLuaLiteralVisitor.Ins)}] = ");
+                s.Append(d.Apply(ToLuaLiteralVisitor.Ins));
+                s.Append(',').AppendLine();
+            }
+            s.Append('}');
+        }
+        
         public void ExportTableList(DefTable t, List<Record> records, StringBuilder s)
         {
             s.Append("return").AppendLine();
