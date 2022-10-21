@@ -1,13 +1,18 @@
 using Luban.Common.Utils;
+using Luban.Job.Cfg.Datas;
+using Luban.Job.Cfg.DataSources;
 using Luban.Job.Cfg.RawDefs;
 using Luban.Job.Cfg.TypeVisitors;
 using Luban.Job.Common.Defs;
+using Luban.Job.Common.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Luban.Job.Cfg.Defs
 {
+    public record class BaseIndexInfo(string Name, TType Type);
     public class DefBean : DefBeanBase
     {
         public const string FALLBACK_TYPE_NAME_KEY = "__type__";
@@ -20,16 +25,21 @@ namespace Luban.Job.Cfg.Defs
 
         public const string XML_TYPE_NAME_KEY = "type";
 
+        public const string XML_VALUE_NAME_KEY = "value";
+
         public const string LUA_TYPE_NAME_KEY = "_type_";
 
         public const string EXCEL_TYPE_NAME_KEY = "$type";
 
+        public const string EXCEL_VALUE_NAME_KEY = "$value";
         public string JsonTypeNameKey => JSON_TYPE_NAME_KEY;
 
         public string LuaTypeNameKey => LUA_TYPE_NAME_KEY;
 
+        public List<BaseIndexInfo> BaseIndexList { get; } = new();
         public string Alias { get; }
 
+        public bool IsBaseTable { get; private set; }
         public bool IsMultiRow { get; set; }
 
         public string Sep { get; }
@@ -231,6 +241,43 @@ namespace Luban.Job.Cfg.Defs
                 {
                     c.AutoId = ++nextAutoId;
                 }
+            }
+        }
+        public void SetBaseTableKey(List<Record> records)
+        {
+            IsBaseTable = true;
+            var ass = (DefAssembly)AssemblyBase;
+            int keyIndex = 0;
+            int valueIndex = 0;
+            int typeIndex = 0;
+            for (int i = 0; i < HierarchyFields.Count; i++)
+            {
+                var field = HierarchyFields[i];
+                if (field.Name == "key")
+                {
+                    keyIndex = i;
+                }
+                if (field.Name == "type")
+                {
+                    typeIndex = i;
+                }
+            }
+            for (int i = 0; i < records.Count; i++)
+            {
+                Record record = records[i];
+                var data = record.Data;
+                var keyField = (DString)data.Fields[keyIndex];
+                var keyString = keyField.Value;
+                
+                var typeField = (DString)data.Fields[typeIndex];
+                var typeString = typeField.Value;
+                var alias = ass.GetCfgTypeAlias(typeString);
+                if (alias != null)
+                {
+                    typeString = alias.Alias;
+                }
+                var cttype = ass.CreateType(Namespace, typeString, false);
+                this.BaseIndexList.Add(new BaseIndexInfo(keyString,cttype));
             }
         }
     }

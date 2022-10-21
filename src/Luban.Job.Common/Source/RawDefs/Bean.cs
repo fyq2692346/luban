@@ -21,7 +21,7 @@ namespace Luban.Job.Common.RawDefs
         public string Comment { get; set; }
 
         public string Tags { get; set; }
-
+        
         public List<Field> Fields { get; set; } = new List<Field>();
     }
 }

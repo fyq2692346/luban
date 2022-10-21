@@ -5,6 +5,8 @@ using System.Collections.Generic;
     parent_def_type = x.parent_def_type
     export_fields = x.export_fields
     hierarchy_export_fields = x.hierarchy_export_fields
+    is_base_table = x.is_base_table
+    base_index_list = x.base_index_list
 }}
 
 {{cs_start_name_space_grace x.namespace_with_top_module}}
@@ -62,6 +64,12 @@ public {{x.cs_class_modifier}} partial class {{name}} : {{if parent_def_type}} {
     {{~end~}}
     {{~if field.gen_text_key~}}
     public {{cs_define_text_key_field field}} { get; }
+    {{~end~}}
+    {{~end~}}
+
+  {{~if is_base_table ~}}
+    {{~for base_field in base_index_list~}}
+    public {{cs_define_type base_field.type}} get{{base_field.name}} { get; private set; }
     {{~end~}}
     {{~end~}}
 

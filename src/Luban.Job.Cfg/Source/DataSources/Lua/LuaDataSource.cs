@@ -17,7 +17,7 @@ namespace Luban.Job.Cfg.DataSources.Lua
         private LuaGlobal _env;
         private LuaTable _dataTable;
 
-        public override void Load(string rawUrl, string sheetName, Stream stream)
+        public override void Load(string rawUrl, string sheetName, Stream stream,bool isBase)
         {
             RawUrl = rawUrl;
             _env = LuaManager.CreateEnvironment();

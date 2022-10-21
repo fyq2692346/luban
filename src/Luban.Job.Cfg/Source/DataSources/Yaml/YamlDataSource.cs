@@ -13,7 +13,7 @@ namespace Luban.Job.Cfg.DataSources.Yaml
     class YamlDataSource : AbstractDataSource
     {
         private YamlNode _root;
-        public override void Load(string rawUrl, string sheetOrFieldName, Stream stream)
+        public override void Load(string rawUrl, string sheetOrFieldName, Stream stream,bool isBase)
         {
             var ys = new YamlStream();
             ys.Load(new StreamReader(stream));

@@ -29,7 +29,7 @@ namespace Luban.Job.Cfg.Utils
             var values = SplitVectorString(x);
             if (values.Length != 2)
             {
-                throw new Exception($"'{x}' ²»ÊÇºÏ·¨vector2ÀàÐÍÊý¾Ý");
+                throw new Exception($"'{x}' ï¿½ï¿½ï¿½ÇºÏ·ï¿½vector2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             }
             return new DVector2(new System.Numerics.Vector2(float.Parse(values[0]), float.Parse(values[1])));
 
@@ -40,7 +40,7 @@ namespace Luban.Job.Cfg.Utils
             var values = SplitVectorString(x);
             if (values.Length != 3)
             {
-                throw new Exception($"'{x}' ²»ÊÇºÏ·¨vector3ÀàÐÍÊý¾Ý");
+                throw new Exception($"'{x}' ï¿½ï¿½ï¿½ÇºÏ·ï¿½vector3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             }
             return new DVector3(new System.Numerics.Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2])));
 
@@ -51,7 +51,7 @@ namespace Luban.Job.Cfg.Utils
             var values = SplitVectorString(x);
             if (values.Length != 4)
             {
-                throw new Exception($"'{x}' ²»ÊÇºÏ·¨vector4ÀàÐÍÊý¾Ý");
+                throw new Exception($"'{x}' ï¿½ï¿½ï¿½ÇºÏ·ï¿½vector4ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
             }
             return new DVector4(new System.Numerics.Vector4(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
         }
@@ -163,11 +163,11 @@ namespace Luban.Job.Cfg.Utils
         {
             if (key == null || text == null)
             {
-                throw new Exception("textµÄkey»òtextÊôÐÔ²»ÄÜÎªnull");
+                throw new Exception("textï¿½ï¿½keyï¿½ï¿½textï¿½ï¿½ï¿½Ô²ï¿½ï¿½ï¿½Îªnull");
             }
             if (key == "" && text != "")
             {
-                throw new Exception($"text  keyÎª¿Õ, µ«text:'{text}'²»Îª¿Õ");
+                throw new Exception($"text  keyÎªï¿½ï¿½, ï¿½ï¿½text:'{text}'ï¿½ï¿½Îªï¿½ï¿½");
             }
         }
 
@@ -239,20 +239,32 @@ namespace Luban.Job.Cfg.Utils
             }
         }
 
+        public static string GetImplTypeAliasByTypeName(DefBean bean,string subType)
+        {
+            var defAssembly = (DefAssembly)bean.AssemblyBase;
+            var defType = defAssembly.GetCfgTypeAlias(subType);
+            if (defType != null)
+            {
+                return defType.Alias;
+            }
+            return subType;
+        }
+        
         public static DefBean GetImplTypeByNameOrAlias(DefBean bean, string subType)
         {
+            
             if (string.IsNullOrEmpty(subType))
             {
-                throw new Exception($"module:'{bean.Namespace}' ¶àÌ¬Êý¾Ýtype²»ÄÜÎª¿Õ");
+                throw new Exception($"module:'{bean.Namespace}' ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½typeï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½");
             }
             DefBean defType = bean.GetHierarchyChildren().Cast<DefBean>().Where(c => c.Alias == subType || c.Name == subType || c.FullName == subType).FirstOrDefault();
             if (defType == null)
             {
-                throw new Exception($"module:'{bean.Namespace}' type:'{subType}' ²»ÊÇºÏ·¨ÀàÐÍ");
+                throw new Exception($"module:'{bean.Namespace}' type:'{subType}' ï¿½ï¿½ï¿½ÇºÏ·ï¿½ï¿½ï¿½ï¿½ï¿½");
             }
             if (defType.IsAbstractType)
             {
-                throw new Exception($"module:'{bean.Namespace}' type:'{subType}' ÊÇ³éÏóÀà. ²»ÄÜ´´½¨ÊµÀý");
+                throw new Exception($"module:'{bean.Namespace}' type:'{subType}' ï¿½Ç³ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½Ü´ï¿½ï¿½ï¿½Êµï¿½ï¿½");
             }
             return defType;
         }

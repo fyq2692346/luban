@@ -15,6 +15,6 @@ namespace Luban.Job.Cfg.DataSources
 
         public abstract List<Record> ReadMulti(TBean type);
 
-        public abstract void Load(string rawUrl, string sheetName, Stream stream);
+        public abstract void Load(string rawUrl, string sheetName, Stream stream,bool isBase);
     }
 }

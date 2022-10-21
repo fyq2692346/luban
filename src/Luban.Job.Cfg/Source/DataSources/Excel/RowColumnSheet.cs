@@ -20,12 +20,14 @@ namespace Luban.Job.Cfg.DataSources.Excel
 
         public string RawUrl { get; }
 
+        public bool IsBase { get; }
         public List<(string Tag, TitleRow Row)> Rows { get; } = new();
 
-        public RowColumnSheet(string rawUrl, string name)
+        public RowColumnSheet(string rawUrl, string name,bool isBase)
         {
             this.RawUrl = rawUrl;
             this.Name = name;
+            this.IsBase = isBase;
         }
 
         private string GetRowTag(List<Cell> row)

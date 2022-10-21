@@ -15,5 +15,6 @@ namespace Luban.Job.Cfg.RawDefs
 
         public List<RefGroup> RefGroups { get; set; } = new();
 
+        public Dictionary<string, CfgType> TypeAlias { get; set; } = new();
     }
 }
