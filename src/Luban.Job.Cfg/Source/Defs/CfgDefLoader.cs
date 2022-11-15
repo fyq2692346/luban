@@ -1,4 +1,6 @@
 using Bright.Collections;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Luban.Common.Utils;
 using Luban.Job.Cfg.Cache;
 using Luban.Job.Cfg.Datas;
@@ -16,6 +18,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Field = Luban.Job.Common.RawDefs.Field;
+using Group = Luban.Job.Cfg.RawDefs.Group;
+using Table = Luban.Job.Cfg.RawDefs.Table;
 
 namespace Luban.Job.Cfg.Defs
 {
@@ -241,16 +246,6 @@ namespace Luban.Job.Cfg.Defs
                     mode = ETableMode.LIST;
                     break;
                 }
-                case "base":
-                {
-                    if (!string.IsNullOrWhiteSpace(indexStr) && indexs.Length > 1)
-                    {
-                        throw new Exception(
-                            $"定义文件:'{defineFile}' table:'{tableName}' 是单主键表，index:'{indexStr}'不能包含多个key");
-                    }
-                    mode = ETableMode.BASE;
-                    break;
-                }
                 case "":
                 {
                     if (string.IsNullOrWhiteSpace(indexStr) || indexs.Length == 1)
@@ -435,7 +430,6 @@ namespace Luban.Job.Cfg.Defs
                     }
                 }
             }
-
             foreach (var (name, f) in tableDefInfo.FieldInfos)
             {
                 var cType = _cfgTypes.TryGetValue(f.Type, out var cfgType) ? cfgType.Alias : f.Type;
@@ -444,7 +438,7 @@ namespace Luban.Job.Cfg.Defs
                 {
                     continue;
                 }
-
+                
                 var cf = new CfgField() { Name = name, Id = 0 };
                
                 string[] attrs = cType.Trim().Split('&').Select(s => s.Trim()).ToArray();
@@ -510,7 +504,6 @@ namespace Luban.Job.Cfg.Defs
 
                 cb.Fields.Add(cf);
             }
-
             return cb;
         }
 
@@ -574,7 +567,7 @@ namespace Luban.Job.Cfg.Defs
                 var source = new ExcelRowColumnDataSource();
                 var bytes = await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5);
                 (var actualFile, var sheetName) = FileUtil.SplitFileAndSheetName(FileUtil.Standardize(file.OriginFile));
-                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null,false);
+                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null);
                 foreach (var r in records)
                 {
                     DBean data = r.Data;
@@ -642,7 +635,7 @@ namespace Luban.Job.Cfg.Defs
                 var source = new ExcelRowColumnDataSource();
                 var bytes = await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5);
                 (var actualFile, var sheetName) = FileUtil.SplitFileAndSheetName(FileUtil.Standardize(file.OriginFile));
-                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null,false);
+                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null);
                 foreach (var r in records)
                 {
                     DBean data = r.Data;
@@ -731,7 +724,7 @@ namespace Luban.Job.Cfg.Defs
                 var source = new ExcelRowColumnDataSource();
                 var bytes = await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5);
                 (var actualFile, var sheetName) = FileUtil.SplitFileAndSheetName(FileUtil.Standardize(file.OriginFile));
-                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null,false);
+                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, actualFile, sheetName, bytes, true, null);
 
                 foreach (var r in records)
                 {
@@ -840,7 +833,7 @@ namespace Luban.Job.Cfg.Defs
             {
                 var source = new ExcelRowColumnDataSource();
                 var bytes = await this.Agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5);
-                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, file.OriginFile, null, bytes, true, null,false);
+                var records = DataLoaderUtil.LoadCfgRecords(tableRecordType, file.OriginFile, null, bytes, true, null);
 
                 foreach (var r in records)
                 {

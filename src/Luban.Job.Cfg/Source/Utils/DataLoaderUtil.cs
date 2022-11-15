@@ -96,7 +96,7 @@ namespace Luban.Job.Cfg.Utils
                         file.OriginFile,
                         file.SheetName,
                         await agent.GetFromCacheOrReadAllBytesAsync(file.ActualFile, file.MD5),
-                        IsMultiRecordFile(file.ActualFile, file.SheetName), table.Options,table.IsBaseTable);
+                        IsMultiRecordFile(file.ActualFile, file.SheetName), table.Options);
 
                     FileRecordCacheManager.Ins.AddCacheLoadedRecords(table, file.MD5, file.SheetName, res);
 
@@ -161,33 +161,7 @@ namespace Luban.Job.Cfg.Utils
                     valueIndex = i;
                 }
             }
-
-            if (table.IsBaseTable)
-            {
-                for (int i = 0; i < mainRecords.Count; i++)
-                {
-                    Record record = mainRecords[i];
-                    var data = record.Data;
-                    var keyField = (DString)data.Fields[keyIndex];
-                    var keyString = keyField.Value;
-                    var alias = ((DefAssembly)table.AssemblyBase).GetCfgTypeAlias(keyString);
-                    if (alias != null)
-                    {
-                        keyString = alias.Alias;
-                    }
-
-                    var cttype = table.AssemblyBase.CreateType(table.Namespace, keyString, false);
-                    var valueField = (DString)data.Fields[valueIndex];
-                    var valueString = valueField.Value;
-                    var ttype = cttype.Apply(StringDataCreator.Ins, valueString);
-                    data.Fields[valueIndex] = ttype;
-                }
-            }
-            if (table.IsBaseTable)
-            {
-                var defBean = (DefBean)table.Assembly.GetDefType(table.ValueType);
-                defBean.SetBaseTableKey(mainRecords);
-            }
+            
             List<Record> patchRecords = null;
             if (patchGenerateTask != null)
             {
@@ -230,10 +204,10 @@ namespace Luban.Job.Cfg.Utils
             await Task.WhenAll(genDataTasks.ToArray());
         }
 
-        public static List<Record> LoadCfgRecords(TBean recordType, string originFile, string sheetName, byte[] content, bool multiRecord, Dictionary<string, string> options,bool isBase)
+        public static List<Record> LoadCfgRecords(TBean recordType, string originFile, string sheetName, byte[] content, bool multiRecord, Dictionary<string, string> options)
         {
             // (md5,sheet,multiRecord,exportTestData) -> (valuetype, List<(datas)>)
-            var dataSource = DataSourceFactory.Create(originFile, sheetName, options, new MemoryStream(content),isBase);
+            var dataSource = DataSourceFactory.Create(originFile, sheetName, options, new MemoryStream(content));
             try
             {
                 if (multiRecord)

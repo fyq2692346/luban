@@ -14,7 +14,7 @@ namespace Luban.Job.Cfg.DataSources.UnityAsset
     class UnityAssetDataSource : AbstractDataSource
     {
         private YamlNode _root;
-        public override void Load(string rawUrl, string sheetOrFieldName, Stream stream,bool isBase)
+        public override void Load(string rawUrl, string sheetOrFieldName, Stream stream)
         {
             var ys = new YamlStream();
             ys.Load(new StreamReader(stream));

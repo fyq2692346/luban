@@ -17,7 +17,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
         private readonly List<StreamSheet> _sheets = new List<StreamSheet>();
 
 
-        public override void Load(string rawUrl, string sheetName, Stream stream,bool isBase)
+        public override void Load(string rawUrl, string sheetName, Stream stream)
         {
             s_logger.Trace("{filename} {sheet}", rawUrl, sheetName);
             RawUrl = rawUrl;

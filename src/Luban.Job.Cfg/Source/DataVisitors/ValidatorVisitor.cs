@@ -41,7 +41,7 @@ namespace Luban.Job.Cfg.DataVisitors
                 DBean data = r.Data;
                 _path.Clear();
                 _path.Push(table.FullName);
-                if (table.IsMapTable||table.IsBaseTable)
+                if (table.IsMapTable)
                 {
                     _path.Push(data.Fields[keyIndex]);
                 }

@@ -49,7 +49,7 @@ namespace Luban.Job.Cfg.DataSources
             }
         }
 
-        public static AbstractDataSource Create(string url, string sheetName, Dictionary<string, string> options, Stream stream,bool isBase)
+        public static AbstractDataSource Create(string url, string sheetName, Dictionary<string, string> options, Stream stream)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace Luban.Job.Cfg.DataSources
                     case "asset": source = new UnityAsset.UnityAssetDataSource(); break;
                     default: throw new Exception($"不支持的文件类型:{url}");
                 }
-                source.Load(url, sheetName, stream,isBase);
+                source.Load(url, sheetName, stream);
                 return source;
             }
             catch (DataCreateException)

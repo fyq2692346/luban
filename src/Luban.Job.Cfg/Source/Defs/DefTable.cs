@@ -69,8 +69,7 @@ namespace Luban.Job.Cfg.Defs
         public bool IsSingletonTable => Mode == ETableMode.ONE;
 
         public bool IsListTable => Mode == ETableMode.LIST;
-
-        public bool IsBaseTable => Mode == ETableMode.BASE;
+        
 
         public List<string> InputFiles { get; }
 

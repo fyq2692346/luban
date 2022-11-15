@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Luban.Job.Common.Types;
 
 namespace Luban.Job.Common.RawDefs
 {
@@ -23,5 +24,7 @@ namespace Luban.Job.Common.RawDefs
         public string Tags { get; set; }
         
         public List<Field> Fields { get; set; } = new List<Field>();
+
+        public Dictionary<string, string> BaseTableType = new Dictionary<string, string>();
     }
 }

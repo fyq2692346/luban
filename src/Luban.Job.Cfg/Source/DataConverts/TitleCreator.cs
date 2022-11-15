@@ -75,11 +75,6 @@ namespace Luban.Job.Cfg.DataConverts
             {
                 title.SubTitles[table.IndexField.Name].Tags.TryAdd("non_empty", "1");
             }
-
-            if (table.IsBaseTable)
-            {
-                title.SubTitles[table.IndexField.Name].Tags.TryAdd("non_empty", "1");
-            }
             title.Init();
             return title;
         }

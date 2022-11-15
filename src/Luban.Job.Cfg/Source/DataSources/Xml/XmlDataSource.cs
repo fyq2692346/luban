@@ -14,7 +14,7 @@ namespace Luban.Job.Cfg.DataSources.Xml
     {
         private XElement _doc;
 
-        public override void Load(string rawUrl, string sheetName, Stream stream,bool isBase)
+        public override void Load(string rawUrl, string sheetName, Stream stream)
         {
             RawUrl = rawUrl;
             _doc = XElement.Load(stream);

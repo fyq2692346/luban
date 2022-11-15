@@ -17,7 +17,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
         private readonly List<RowColumnSheet> _sheets = new List<RowColumnSheet>();
 
 
-        public override void Load(string rawUrl, string sheetName, Stream stream,bool isBase)
+        public override void Load(string rawUrl, string sheetName, Stream stream)
         {
             s_logger.Trace("{filename} {sheet}", rawUrl, sheetName);
             RawUrl = rawUrl;
@@ -25,7 +25,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
 
             foreach (RawSheet rawSheet in SheetLoadUtil.LoadRawSheets(rawUrl, sheetName, stream))
             {
-                var sheet = new RowColumnSheet(rawUrl, sheetName,isBase);
+                var sheet = new RowColumnSheet(rawUrl, sheetName);
                 sheet.Load(rawSheet);
                 _sheets.Add(sheet);
             }
@@ -40,7 +40,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
         {
             foreach (RawSheet rawSheet in rawSheets)
             {
-                var sheet = new RowColumnSheet("__intern__", rawSheet.TableName,false);
+                var sheet = new RowColumnSheet("__intern__", rawSheet.TableName);
                 sheet.Load(rawSheet);
                 _sheets.Add(sheet);
             }
@@ -50,7 +50,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
         {
             return SheetLoadUtil.LoadSheetTableDefInfo(rawUrl, sheetName, stream);
         }
-
+        
         public override List<Record> ReadMulti(TBean type)
         {
             var datas = new List<Record>();

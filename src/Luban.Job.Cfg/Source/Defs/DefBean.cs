@@ -38,8 +38,7 @@ namespace Luban.Job.Cfg.Defs
 
         public List<BaseIndexInfo> BaseIndexList { get; } = new();
         public string Alias { get; }
-
-        public bool IsBaseTable { get; private set; }
+        
         public bool IsMultiRow { get; set; }
 
         public string Sep { get; }
@@ -118,6 +117,7 @@ namespace Luban.Job.Cfg.Defs
             }
         }
 
+        private Dictionary<string, string> baseTableType;
         public DefBean(CfgBean b) : base(b)
         {
             Alias = b.Alias;
@@ -183,7 +183,6 @@ namespace Luban.Job.Cfg.Defs
             }
 
             CollectHierarchyFields(HierarchyFields);
-
             this.ExportFields = this.Fields.Select(f => (DefField)f).Where(f => f.NeedExport).ToList();
             this.HierarchyExportFields = this.HierarchyFields.Select(f => (DefField)f).Where(f => f.NeedExport).ToList();
         }
@@ -241,43 +240,6 @@ namespace Luban.Job.Cfg.Defs
                 {
                     c.AutoId = ++nextAutoId;
                 }
-            }
-        }
-        public void SetBaseTableKey(List<Record> records)
-        {
-            IsBaseTable = true;
-            var ass = (DefAssembly)AssemblyBase;
-            int keyIndex = 0;
-            int valueIndex = 0;
-            int typeIndex = 0;
-            for (int i = 0; i < HierarchyFields.Count; i++)
-            {
-                var field = HierarchyFields[i];
-                if (field.Name == "key")
-                {
-                    keyIndex = i;
-                }
-                if (field.Name == "type")
-                {
-                    typeIndex = i;
-                }
-            }
-            for (int i = 0; i < records.Count; i++)
-            {
-                Record record = records[i];
-                var data = record.Data;
-                var keyField = (DString)data.Fields[keyIndex];
-                var keyString = keyField.Value;
-                
-                var typeField = (DString)data.Fields[typeIndex];
-                var typeString = typeField.Value;
-                var alias = ass.GetCfgTypeAlias(typeString);
-                if (alias != null)
-                {
-                    typeString = alias.Alias;
-                }
-                var cttype = ass.CreateType(Namespace, typeString, false);
-                this.BaseIndexList.Add(new BaseIndexInfo(keyString,cttype));
             }
         }
     }

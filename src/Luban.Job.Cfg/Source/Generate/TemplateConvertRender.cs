@@ -37,7 +37,7 @@ namespace Luban.Job.Cfg.Generate
                 {
                     ctx.Tasks.Add(Task.Run(() =>
                     {
-                        var fileName = (table.IsMapTable||table.IsBaseTable) ?
+                        var fileName = (table.IsMapTable) ?
                             record.Data.GetField(table.IndexField.Name).Apply(ToStringVisitor2.Ins).Replace("\"", "").Replace("'", "")
                             : (++index).ToString();
                         var file = RenderFileUtil.GetOutputFileName(genType, $"{dirName}/{fileName}", ctx.GenArgs.OutputConvertFileExtension);

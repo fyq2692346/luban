@@ -1,4 +1,5 @@
-﻿using ExcelDataReader;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ExcelDataReader;
 using Luban.Job.Cfg.Defs;
 using Luban.Job.Common.Utils;
 using System;
@@ -523,7 +524,6 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             return finalRows;
         }
-
         public static RawSheetTableDefInfo LoadSheetTableDefInfo(string rawUrl, string sheetName, Stream stream)
         {
             s_logger.Trace("{filename} {sheet}", rawUrl, sheetName);
@@ -552,114 +552,6 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             throw new Exception($"{rawUrl} 没有找到有效的表定义");
         }
-
-        public static RawSheetTableDefInfo LoadSheetTableDefInfoByBase(string rawUrl, string sheetName, Stream stream)
-        {
-            s_logger.Trace("{filename} {sheet}", rawUrl, sheetName);
-            string ext = Path.GetExtension(rawUrl);
-            using (var reader = ext != ".csv" ? ExcelReaderFactory.CreateReader(stream) : ExcelReaderFactory.CreateCsvReader(stream, new ExcelReaderConfiguration() { FallbackEncoding = DetectCsvEncoding(stream) }))
-            {
-                do
-                {
-                    if (sheetName == null || reader.Name == sheetName)
-                    {
-                        try
-                        {
-                            var tableDefInfo = ParseSheetTableDefInfo(rawUrl, reader);
-                            if (tableDefInfo != null)
-                            {
-                                return tableDefInfo;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            throw new Exception($"excel:{rawUrl} sheet:{reader.Name} 读取失败.", e);
-                        }
-
-                    }
-                } while (reader.NextResult());
-            }
-            throw new Exception($"{rawUrl} 没有找到有效的表定义");
-        }
-        
-        
-         private static RawSheetTableDefInfo ParseSheetTableDefInfoByBase(string rawUrl, IExcelDataReader reader)
-        {
-            bool orientRow;
-
-            if (!TryParseMeta(reader, out orientRow, out var _))
-            {
-                return null;
-            }
-            var cells = ParseRawSheetContent(reader, orientRow, true);
-            var title = ParseTitle(cells, reader.MergeCells, orientRow);
-
-            int typeRowIndex = cells.FindIndex(row => IsTypeRow(row));
-
-            if (typeRowIndex < 0)
-            {
-                throw new Exception($"缺失type行。请用'##type'标识type行");
-            }
-            List<Cell> typeRow = cells[typeRowIndex];
-
-            // 先找 ##desc 行，再找##comment行，最后找 ##type的下一行
-            List<Cell> descRow = cells.Find(row => IsRowTagEqual(row, "##desc"));
-            if (descRow == null)
-            {
-                descRow = cells.Find(row => IsRowTagEqual(row, "##comment"));
-            }
-            if (descRow == null)
-            {
-                descRow = cells.Count > 1 ? cells.Skip(1).FirstOrDefault(row => IsRowTagEqual(row, "##")) : null;
-            }
-            List<Cell> groupRow = cells.Find(row => IsGroupRow(row));
-            var fields = new Dictionary<string, FieldInfo>();
-            foreach (var subTitle in title.SubTitleList)
-            {
-                if (!DefUtil.IsNormalFieldName(subTitle.Name))
-                {
-                    continue;
-                }
-                string desc = "";
-                if (descRow != null)
-                {
-                    // 如果有子字段,并且子字段个数>=2时,如果对应注释行有效注释个数为1，表示这是给当前字段的注释,
-                    // 否则是给子字段的注释，取注释为空，而不是第一个注释
-                    if (subTitle.SubTitles.Count >= 2)
-                    {
-                        int notEmptyCellCount = 0;
-                        for (int i = subTitle.FromIndex; i <= subTitle.ToIndex; i++)
-                        {
-                            var cellValue = descRow?[i].Value?.ToString();
-                            if (!string.IsNullOrWhiteSpace(cellValue))
-                            {
-                                ++notEmptyCellCount;
-                                desc = cellValue;
-                            }
-                        }
-                        if (notEmptyCellCount > 1)
-                        {
-                            desc = "";
-                        }
-                    }
-                    else
-                    {
-                        desc = descRow?[subTitle.FromIndex].Value?.ToString() ?? "";
-                    }
-                }
-                fields.Add(subTitle.Name, new FieldInfo()
-                {
-                    Name = subTitle.Name,
-                    Tags = subTitle.Tags,
-                    Type = typeRow[subTitle.FromIndex].Value?.ToString() ?? "",
-                    Groups = groupRow?[subTitle.FromIndex].Value?.ToString() ?? "",
-                    Desc = desc,
-                });
-            }
-
-            return new RawSheetTableDefInfo() { FieldInfos = fields };
-        }
-        
         
         private static RawSheetTableDefInfo ParseSheetTableDefInfo(string rawUrl, IExcelDataReader reader)
         {
@@ -671,7 +563,6 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             var cells = ParseRawSheetContent(reader, orientRow, true);
             var title = ParseTitle(cells, reader.MergeCells, orientRow);
-
             int typeRowIndex = cells.FindIndex(row => IsTypeRow(row));
 
             if (typeRowIndex < 0)
@@ -679,7 +570,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
                 throw new Exception($"缺失type行。请用'##type'标识type行");
             }
             List<Cell> typeRow = cells[typeRowIndex];
-
+            
             // 先找 ##desc 行，再找##comment行，最后找 ##type的下一行
             List<Cell> descRow = cells.Find(row => IsRowTagEqual(row, "##desc"));
             if (descRow == null)
