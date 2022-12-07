@@ -1,4 +1,5 @@
-﻿using ExcelDataReader;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ExcelDataReader;
 using Luban.Job.Cfg.Defs;
 using Luban.Job.Common.Utils;
 using System;
@@ -523,7 +524,6 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             return finalRows;
         }
-
         public static RawSheetTableDefInfo LoadSheetTableDefInfo(string rawUrl, string sheetName, Stream stream)
         {
             s_logger.Trace("{filename} {sheet}", rawUrl, sheetName);
@@ -552,7 +552,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             throw new Exception($"{rawUrl} 没有找到有效的表定义");
         }
-
+        
         private static RawSheetTableDefInfo ParseSheetTableDefInfo(string rawUrl, IExcelDataReader reader)
         {
             bool orientRow;
@@ -563,7 +563,6 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             var cells = ParseRawSheetContent(reader, orientRow, true);
             var title = ParseTitle(cells, reader.MergeCells, orientRow);
-
             int typeRowIndex = cells.FindIndex(row => IsTypeRow(row));
 
             if (typeRowIndex < 0)
@@ -571,7 +570,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
                 throw new Exception($"缺失type行。请用'##type'标识type行");
             }
             List<Cell> typeRow = cells[typeRowIndex];
-
+            
             // 先找 ##desc 行，再找##comment行，最后找 ##type的下一行
             List<Cell> descRow = cells.Find(row => IsRowTagEqual(row, "##desc"));
             if (descRow == null)

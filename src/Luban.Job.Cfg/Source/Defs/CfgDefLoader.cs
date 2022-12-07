@@ -1,4 +1,6 @@
 using Bright.Collections;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Luban.Common.Utils;
 using Luban.Job.Cfg.Cache;
 using Luban.Job.Cfg.Datas;
@@ -16,6 +18,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Field = Luban.Job.Common.RawDefs.Field;
+using Group = Luban.Job.Cfg.RawDefs.Group;
+using Table = Luban.Job.Cfg.RawDefs.Table;
 
 namespace Luban.Job.Cfg.Defs
 {
@@ -64,6 +69,7 @@ namespace Luban.Job.Cfg.Defs
                 Services = _cfgServices,
                 Groups = _cfgGroups,
                 RefGroups = _refGroups,
+                TypeAlias = _cfgTypes,
             };
             BuildCommonDefines(defines);
             return defines;
@@ -427,7 +433,6 @@ namespace Luban.Job.Cfg.Defs
                     }
                 }
             }
-
             foreach (var (name, f) in tableDefInfo.FieldInfos)
             {
                 var cType = _cfgTypes.TryGetValue(f.Type, out var cfgType) ? cfgType.Alias : f.Type;
@@ -436,7 +441,7 @@ namespace Luban.Job.Cfg.Defs
                 {
                     continue;
                 }
-
+                
                 var cf = new CfgField() { Name = name, Id = 0 };
                
                 string[] attrs = cType.Trim().Split('&').Select(s => s.Trim()).ToArray();
@@ -502,7 +507,6 @@ namespace Luban.Job.Cfg.Defs
 
                 cb.Fields.Add(cf);
             }
-
             return cb;
         }
 

@@ -1,4 +1,7 @@
 using Bright.Collections;
+using Luban.Job.Cfg.DataCreators;
+using Luban.Job.Cfg.Datas;
+using Luban.Job.Cfg.DataSources;
 using Luban.Job.Cfg.DataSources.Excel;
 using Luban.Job.Cfg.RawDefs;
 using Luban.Job.Cfg.TypeVisitors;
@@ -12,6 +15,7 @@ namespace Luban.Job.Cfg.Defs
 {
     public record class IndexInfo(TType Type, DefField IndexField, int IndexFieldIdIndex);
 
+   
     public class DefTable : CfgDefTypeBase
     {
         private static readonly NLog.Logger s_logger = NLog.LogManager.GetCurrentClassLogger();
@@ -65,6 +69,7 @@ namespace Luban.Job.Cfg.Defs
         public bool IsSingletonTable => Mode == ETableMode.ONE;
 
         public bool IsListTable => Mode == ETableMode.LIST;
+        
 
         public List<string> InputFiles { get; }
 
@@ -89,6 +94,8 @@ namespace Luban.Job.Cfg.Defs
         public bool MultiKey { get; private set; }
 
         public List<IndexInfo> IndexList { get; } = new();
+
+      
 
         public bool NeedExport => Assembly.NeedExport(this.Groups);
 
@@ -199,5 +206,8 @@ namespace Luban.Job.Cfg.Defs
                 }
             }
         }
+
+        
+        
     }
 }

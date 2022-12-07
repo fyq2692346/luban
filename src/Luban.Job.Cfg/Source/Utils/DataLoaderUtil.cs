@@ -146,7 +146,22 @@ namespace Luban.Job.Cfg.Utils
                 mainRecords.AddRange(await task);
             }
             s_logger.Trace("== load main records. count:{count}", mainRecords.Count);
+            int keyIndex = 0;
+            int valueIndex = 0;
+            for (int i = 0; i < table.ValueTType.Bean.HierarchyFields.Count; i++)
+            {
+                var field = table.ValueTType.Bean.HierarchyFields[i];
+                if (field.Name == "type")
+                {
+                    keyIndex = i;
+                }
 
+                if (field.Name == "value")
+                {
+                    valueIndex = i;
+                }
+            }
+            
             List<Record> patchRecords = null;
             if (patchGenerateTask != null)
             {
@@ -160,7 +175,7 @@ namespace Luban.Job.Cfg.Utils
             }
 
             table.Assembly.AddDataTable(table, mainRecords, patchRecords);
-
+            
             s_logger.Trace("table:{name} record num:{num}", table.FullName, mainRecords.Count);
         }
 

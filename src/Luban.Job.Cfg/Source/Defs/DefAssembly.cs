@@ -65,7 +65,9 @@ namespace Luban.Job.Cfg.Defs
         public Dictionary<string, DefTable> CfgTablesByName { get; } = new();
 
         public Dictionary<string, DefTable> CfgTablesByFullName { get; } = new Dictionary<string, DefTable>();
-        
+
+        public Dictionary<string, DefType> CfgTypeByName { get; } = new();
+
         public RawTextTable RawTextTable { get; } = new RawTextTable();
 
         public TextTable ExportTextTable { get; private set; }
@@ -90,7 +92,7 @@ namespace Luban.Job.Cfg.Defs
         {
             return _patches.Find(b => b.Name == name);
         }
-
+        
         public void AddCfgTable(DefTable table)
         {
             if (!CfgTablesByFullName.TryAdd(table.FullName, table))
@@ -103,7 +105,19 @@ namespace Luban.Job.Cfg.Defs
             }
         }
 
-       
+        public void AddCfgType(DefType type)
+        {
+            if (!CfgTypeByName.TryAdd(type.Name, type))
+            {
+                throw new Exception($"table:'{type.FullName}' duplicated");
+            }
+        }
+
+        public DefType GetCfgTypeAlias(string name)
+        {
+            return CfgTypeByName.TryGetValue(name, out var t) ? t : null;
+        }
+        
         public DefTable GetCfgTable(string name)
         {
             return CfgTablesByFullName.TryGetValue(name, out var t) ? t : null;
@@ -277,7 +291,12 @@ namespace Luban.Job.Cfg.Defs
                 AddType(table);
                 AddCfgTable(table);
             }
-            
+
+            foreach (var t in defines.TypeAlias)
+            {
+                var type = new DefType(t.Value);
+                AddCfgType(type);
+            }
             if (!string.IsNullOrWhiteSpace(args.OutputTables))
             {
                 foreach (var tableFullName in SplitTableList(args.OutputTables))

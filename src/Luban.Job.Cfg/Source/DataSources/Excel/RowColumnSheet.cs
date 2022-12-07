@@ -19,7 +19,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
         public string Name { get; }
 
         public string RawUrl { get; }
-
+        
         public List<(string Tag, TitleRow Row)> Rows { get; } = new();
 
         public RowColumnSheet(string rawUrl, string name)

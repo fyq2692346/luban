@@ -1,7 +1,11 @@
 using Luban.Job.Cfg.Datas;
+using Luban.Job.Cfg.Defs;
+using Luban.Job.Cfg.Utils;
+using Luban.Job.Common.RawDefs;
 using Luban.Job.Common.Types;
 using Luban.Job.Common.TypeVisitors;
 using System;
+using System.Collections.Generic;
 
 namespace Luban.Job.Cfg.DataCreators
 {
@@ -146,54 +150,123 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TText type, string x)
         {
-            //var (key, text) = DataUtil.ExtractText(x);
-            //return new DText(key, text);
-            throw new NotSupportedException();
+            var (key, text) = DataUtil.ExtractText(x);
+            return new DText(key, text);
+            //throw new NotSupportedException();
         }
 
+        private static string[] TrySep(TType type, string x)
+        {
+            string[] strings = new[] { x };
+            string sep = type.GetTag("sep");
+            if (!string.IsNullOrEmpty(sep))
+            {
+                strings = DataUtil.SplitStringByAnySepChar(x, sep);
+            }
+            return strings;
+        }
         public DType Accept(TBean type, string x)
         {
-            throw new NotSupportedException();
+            string[] strings;
+            var originBean = (DefBean)type.Bean;
+            if (!string.IsNullOrEmpty(originBean.Sep))
+            {
+                strings = DataUtil.SplitStringByAnySepChar(x, originBean.Sep);
+            }
+            else
+            {
+                strings = TrySep(type, x);
+            }
+            return new DBean(type, originBean, CreateBeanFields(originBean, strings));
         }
 
         public DType Accept(TArray type, string x)
         {
-            throw new NotSupportedException();
+            return new DArray(type, ReadList(type, type.ElementType, x));
         }
 
         public DType Accept(TList type, string x)
         {
-            throw new NotSupportedException();
+            return new DList(type, ReadList(type, type.ElementType, x));
         }
 
         public DType Accept(TSet type, string x)
         {
-            throw new NotSupportedException();
+            return new DSet(type, ReadList(type, type.ElementType, x));
         }
 
         public DType Accept(TMap type, string x)
         {
-            throw new NotSupportedException();
+            string[] strings = TrySep(type, x);
+            var datas = new Dictionary<DType, DType>();
+            for (int i = 0; i < strings.Length; )
+            {
+                var key = type.KeyType.Apply(this, strings[i]);
+                i++;
+                var value = type.ValueType.Apply(this, strings[i]);
+                i++;
+                if (!datas.TryAdd(key, value))
+                {
+                    throw new InvalidExcelDataException($"map 的 key:{key} 重复");
+                }
+            }
+            return new DMap(type, datas);
         }
 
         public DType Accept(TVector2 type, string x)
         {
-            throw new NotSupportedException();
+            return DataUtil.CreateVector(type, x);
         }
 
         public DType Accept(TVector3 type, string x)
         {
-            throw new NotSupportedException();
+            return DataUtil.CreateVector(type, x);
         }
 
         public DType Accept(TVector4 type, string x)
         {
-            throw new NotSupportedException();
+            return DataUtil.CreateVector(type, x);
         }
 
         public DType Accept(TDateTime type, string x)
         {
-            throw new NotSupportedException();
+            return DataUtil.CreateDateTime(x);
+        }
+
+        private List<DType> CreateBeanFields(DefBean bean, string[] strings)
+        {
+            var list = new List<DType>();
+            for (int i = 0; i < bean.HierarchyFields.Count; i++)
+            {
+                DefField f = (DefField)bean.HierarchyFields[i];
+                try
+                {
+                    list.Add(f.CType.Apply(this,strings[i]));
+                }
+                catch (DataCreateException dce)
+                {
+                    dce.Push(bean, f);
+                    throw;
+                } catch (Exception e)
+                {
+                    var dce = new DataCreateException(e, strings[i]);
+                    dce.Push(bean, f);
+                    throw dce;
+                }
+            }
+            return list;
+        }
+
+        public List<DType> ReadList(TType type, TType eleType, string x)
+        {
+            var datas = new List<DType>();
+            string[] strings = TrySep(type, x);
+            for (int i = 0; i < strings.Length; i++)
+            {
+                datas.Add(eleType.Apply(this,strings[i]));
+            }
+
+            return datas;
         }
     }
 }

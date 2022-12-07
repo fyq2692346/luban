@@ -50,7 +50,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
         {
             return SheetLoadUtil.LoadSheetTableDefInfo(rawUrl, sheetName, stream);
         }
-
+        
         public override List<Record> ReadMulti(TBean type)
         {
             var datas = new List<Record>();

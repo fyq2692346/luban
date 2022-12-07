@@ -7,5 +7,6 @@ namespace Luban.Job.Cfg.RawDefs
         public string Alias { get; set; }
 
         public string Sep { get; set; }
+        
     }
 }

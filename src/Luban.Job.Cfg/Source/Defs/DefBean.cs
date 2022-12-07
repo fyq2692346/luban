@@ -1,13 +1,18 @@
 using Luban.Common.Utils;
+using Luban.Job.Cfg.Datas;
+using Luban.Job.Cfg.DataSources;
 using Luban.Job.Cfg.RawDefs;
 using Luban.Job.Cfg.TypeVisitors;
 using Luban.Job.Common.Defs;
+using Luban.Job.Common.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Luban.Job.Cfg.Defs
 {
+    public record class BaseIndexInfo(string Name, TType Type);
     public class DefBean : DefBeanBase
     {
         public const string FALLBACK_TYPE_NAME_KEY = "__type__";
@@ -20,16 +25,20 @@ namespace Luban.Job.Cfg.Defs
 
         public const string XML_TYPE_NAME_KEY = "type";
 
+        public const string XML_VALUE_NAME_KEY = "value";
+
         public const string LUA_TYPE_NAME_KEY = "_type_";
 
         public const string EXCEL_TYPE_NAME_KEY = "$type";
 
+        public const string EXCEL_VALUE_NAME_KEY = "$value";
         public string JsonTypeNameKey => JSON_TYPE_NAME_KEY;
 
         public string LuaTypeNameKey => LUA_TYPE_NAME_KEY;
 
+        public List<BaseIndexInfo> BaseIndexList { get; } = new();
         public string Alias { get; }
-
+        
         public bool IsMultiRow { get; set; }
 
         public string Sep { get; }
@@ -108,6 +117,7 @@ namespace Luban.Job.Cfg.Defs
             }
         }
 
+        private Dictionary<string, string> baseTableType;
         public DefBean(CfgBean b) : base(b)
         {
             Alias = b.Alias;
@@ -173,7 +183,6 @@ namespace Luban.Job.Cfg.Defs
             }
 
             CollectHierarchyFields(HierarchyFields);
-
             this.ExportFields = this.Fields.Select(f => (DefField)f).Where(f => f.NeedExport).ToList();
             this.HierarchyExportFields = this.HierarchyFields.Select(f => (DefField)f).Where(f => f.NeedExport).ToList();
         }
