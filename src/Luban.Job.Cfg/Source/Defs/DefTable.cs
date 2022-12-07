@@ -66,8 +66,6 @@ namespace Luban.Job.Cfg.Defs
 
         public bool IsListTable => Mode == ETableMode.LIST;
 
-        public bool IsBaseTable => Mode == ETableMode.BASE;
-
         public List<string> InputFiles { get; }
 
         private readonly Dictionary<string, List<string>> _patchInputFiles;
@@ -158,35 +156,6 @@ namespace Luban.Job.Cfg.Defs
                     KeyTType = IndexField.CType;
                     Type = TMap.Create(false, null, KeyTType, ValueTType, false);
                     this.IndexList.Add(new IndexInfo(KeyTType, IndexField, IndexFieldIdIndex));
-                    break;
-                }
-                case ETableMode.BASE:
-                {
-                    IsUnionIndex = true;
-                    if (!string.IsNullOrWhiteSpace(Index))
-                    {
-                        if (ValueTType.GetBeanAs<DefBean>().TryGetField(Index, out var f, out var i))
-                        {
-                            IndexField = f;
-                            IndexFieldIdIndex = i;
-                        }
-                        else
-                        {
-                            throw new Exception($"table:'{FullName}' index:'{Index}' 字段不存在");
-                        }
-                    }else if (ValueTType.Bean.HierarchyFields.Count == 0)
-                    {
-                        throw new Exception($"table:'{FullName}' 必须定义至少一个字段");
-                    }
-                    else
-                    {
-                        IndexField = (DefField)ValueTType.Bean.HierarchyFields[0];
-                        Index = IndexField.Name;
-                        IndexFieldIdIndex = 0;
-                    }
-                    KeyTType = IndexField.CType;
-                    Type = TMap.Create(false, null, KeyTType, ValueTType, false);
-                    this.IndexList.Add(new IndexInfo(KeyTType,IndexField,IndexFieldIdIndex));
                     break;
                 }
                 case ETableMode.LIST:

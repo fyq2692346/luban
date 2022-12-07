@@ -49,6 +49,7 @@ namespace Luban.Job.Common.TypeVisitors
         TR Accept(TSet type);
 
         TR Accept(TMap type);
+        
     }
 
     public interface ITypeFuncVisitor<T, TR>
@@ -98,6 +99,7 @@ namespace Luban.Job.Common.TypeVisitors
         TR Accept(TSet type, T x);
 
         TR Accept(TMap type, T x);
+        
     }
 
     public interface ITypeFuncVisitor<T, T2, TR>
@@ -147,6 +149,8 @@ namespace Luban.Job.Common.TypeVisitors
         TR Accept(TSet type, T x, T2 y);
 
         TR Accept(TMap type, T x, T2 y);
+        
+        
     }
 
     public interface ITypeFuncVisitor<T, T2, T3, TR>
@@ -196,5 +200,6 @@ namespace Luban.Job.Common.TypeVisitors
         TR Accept(TSet type, T x, T2 y, T3 z);
 
         TR Accept(TMap type, T x, T2 y, T3 z);
+        
     }
 }

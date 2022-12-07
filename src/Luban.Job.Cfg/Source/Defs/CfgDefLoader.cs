@@ -240,16 +240,6 @@ namespace Luban.Job.Cfg.Defs
                     mode = ETableMode.LIST;
                     break;
                 }
-                case "base":
-                {
-                    if (!string.IsNullOrWhiteSpace(indexStr) && indexs.Length > 1)
-                    {
-                        throw new Exception(
-                            $"定义文件:'{defineFile}' table:'{tableName}' 是单主键表，index:'{indexStr}'不能包含多个key");
-                    }
-                    mode = ETableMode.BASE;
-                    break;
-                }
                 case "":
                 {
                     if (string.IsNullOrWhiteSpace(indexStr) || indexs.Length == 1)
@@ -359,10 +349,13 @@ namespace Luban.Job.Cfg.Defs
 
             _cfgTables.Add(p);
         }
+        private readonly List<string> _typeOptionalAttrs = new List<string>
+            { "index", "mode", "group", "patch_input", "comment", "define_from_file", "output", "options" };
 
+        private readonly List<string> _typeRequireAttrs = new List<string> { "name", "alias" };
         private void AddType(string defineFile, XElement e)
         {
-            ValidAttrKeys(defineFile, e, _tableOptionalAttrs, _tableRequireAttrs);
+            ValidAttrKeys(defineFile, e, _typeOptionalAttrs, _typeRequireAttrs);
             string name = XmlUtil.GetRequiredAttribute(e, "name");
             string module = CurNamespace;
             string alias = XmlUtil.GetOptionalAttribute(e, "alias");
@@ -1025,7 +1018,6 @@ namespace Luban.Job.Cfg.Defs
                 AddBean(defineFile, cb, fullname);
             }
         }
-
 
         private static readonly List<string> _refGroupRequireAttrs = new List<string> { "name", "ref" };
 

@@ -71,21 +71,6 @@ namespace Luban.Job.Cfg.Validators
                         }
                         break;
                     }
-                    case ETableMode.BASE:
-                    {
-                        var recordMap = assembly.GetTableDataInfo(defTable).FinalRecordMap;
-                        if (recordMap.TryGetValue(key, out Record rec))
-                        {
-                            if (!rec.IsNotFiltered(assembly.ExcludeTags))
-                            {
-                                string locationFile = ValidatorContext.CurrentVisitor.CurrentValidateRecord.Source;
-                                assembly.Agent.Error("记录 {0} = {1} (来自文件:{2}) 在引用表:{3} 中存在，但导出时被过滤了",
-                                    ValidatorContext.CurrentRecordPath, key, locationFile, defTable.FullName);
-                            }
-                            return;
-                        }
-                        break;
-                    }
                     case ETableMode.LIST:
                     {
                         var recordMap = assembly.GetTableDataInfo(defTable).FinalRecordMapByIndexs[field];
@@ -188,7 +173,7 @@ namespace Luban.Job.Cfg.Validators
                     throw new Exception($"结构:'{hostTypeName}' 字段:'{fieldName}' ref:'{actualTable}' 不存在");
                 }
             }
-            if (!anyRefGroup && _compiledTables.Count == 1 && (_compiledTables[0].Table is DefTable t && (t.IsMapTable||t.IsBaseTable) && t.NeedExport))
+            if (!anyRefGroup && _compiledTables.Count == 1 && (_compiledTables[0].Table is DefTable t && (t.IsMapTable) && t.NeedExport))
             {
                 // 只引用一个表时才生成ref代码。
                 // 如果被引用的表没有导出，生成ref没有意义，还会产生编译错误
@@ -239,18 +224,6 @@ namespace Luban.Job.Cfg.Validators
                 if (keyType.TypeName != Type.TypeName)
                 {
                     throw new Exception($"type:'{hostTypeName}' field:'{fieldName}' 类型:'{Type.TypeName}' 与 被引用的map表:'{actualTable}' key类型:'{keyType.TypeName}' 不一致");
-                }
-            }
-            else if (ct.IsBaseTable)
-            {
-                if (!string.IsNullOrEmpty(indexName))
-                {
-                    throw new Exception($"结构:{hostTypeName} 字段:{fieldName} ref:{actualTable} 是base表，不能索引子字段");
-                }
-                var keyType = ct.KeyTType;
-                if (keyType.TypeName != Type.TypeName)
-                {
-                    throw new Exception($"type:'{hostTypeName}' field:'{fieldName}' 类型:'{Type.TypeName}' 与 被引用的base表:'{actualTable}' key类型:'{keyType.TypeName}' 不一致");
                 }
             }
             else

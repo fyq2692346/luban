@@ -8,7 +8,6 @@ namespace Luban.Job.Cfg.RawDefs
         ONE,
         MAP,
         LIST,
-        BASE,
     }
 
     public class CfgInputFile

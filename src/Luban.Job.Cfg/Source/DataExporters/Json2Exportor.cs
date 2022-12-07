@@ -24,7 +24,6 @@ namespace Luban.Job.Cfg.DataExporters
                 }
                 case ETableMode.MAP:
                 {
-
                     x.WriteStartObject();
                     string indexName = table.IndexField.Name;
                     foreach (var rec in datas)

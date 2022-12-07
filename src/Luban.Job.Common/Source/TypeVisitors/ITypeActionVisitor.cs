@@ -42,7 +42,7 @@ namespace Luban.Job.Common.TypeVisitors
         void Accept(TSet type, T x);
 
         void Accept(TMap type, T x);
-
+        
         void Accept(TVector2 type, T x);
 
         void Accept(TVector3 type, T x);
@@ -91,7 +91,7 @@ namespace Luban.Job.Common.TypeVisitors
         void Accept(TSet type, T1 x, T2 y);
 
         void Accept(TMap type, T1 x, T2 y);
-
+        
         void Accept(TVector2 type, T1 x, T2 y);
 
         void Accept(TVector3 type, T1 x, T2 y);
