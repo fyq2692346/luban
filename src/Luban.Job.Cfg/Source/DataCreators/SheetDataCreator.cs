@@ -53,7 +53,7 @@ namespace Luban.Job.Cfg.DataCreators
             {
                 return DBool.ValueOf(v);
             }
-            return DBool.ValueOf(bool.Parse(x.ToString()));
+            return DBool.ValueOf(DataUtil.ParseExcelBool(x.ToString()));
         }
 
         public DType Accept(TByte type, RowColumnSheet sheet, TitleRow row)
@@ -429,7 +429,6 @@ namespace Luban.Job.Cfg.DataCreators
         public DType Accept(TBean type, RowColumnSheet sheet, TitleRow row)
         {
             string sep = row.SelfTitle.Sep;// type.GetBeanAs<DefBean>().Sep;
-
             if (row.Row != null)
             {
                 var s = row.AsStream(sep);
@@ -450,6 +449,7 @@ namespace Luban.Job.Cfg.DataCreators
             }
             else if (row.Fields != null)
             {
+                sep += type.GetBeanAs<DefBean>().Sep;
                 var originBean = (DefBean)type.Bean;
                 if (originBean.IsAbstractType)
                 {
@@ -458,7 +458,8 @@ namespace Luban.Job.Cfg.DataCreators
                     {
                         throw new Exception($"type:'{originBean.FullName}' 是多态类型,需要定义'{DefBean.EXCEL_TYPE_NAME_KEY}'列来指定具体子类型");
                     }
-
+                    TitleRow valueTitle = row.GetSubTitleNamedRow(DefBean.EXCEL_VALUE_NAME_KEY);
+                    sep += type.GetTag("sep");
                     string subType = typeTitle.Current?.ToString()?.Trim();
                     if (subType == null || subType == DefBean.BEAN_NULL_STR)
                     {
@@ -469,7 +470,36 @@ namespace Luban.Job.Cfg.DataCreators
                         return null;
                     }
                     DefBean implType = DataUtil.GetImplTypeByNameOrAlias(originBean, subType);
-                    return new DBean(type, implType, CreateBeanFields(implType, sheet, row));
+                    if (valueTitle == null)
+                    {
+                        return new DBean(type, implType, CreateBeanFields(implType, sheet, row));
+                    }
+                    else
+                    {
+                        sep += valueTitle.SelfTitle.Sep;
+                        if (valueTitle.Row != null)
+                        {
+                            var s = valueTitle.AsStream(sep);
+                            if (type.IsNullable && s.TryReadEOF())
+                            {
+                                return null;
+                            }
+                            return new DBean(type, implType, CreateBeanFields(implType, s));
+                        }
+                        else if (valueTitle.Rows != null)
+                        {
+                            var s = valueTitle.AsMultiRowConcatStream(sep);
+                            if (type.IsNullable && s.TryReadEOF())
+                            {
+                                return null;
+                            }
+                            return new DBean(type, implType, CreateBeanFields(implType, s));
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
                 }
                 else
                 {
@@ -645,6 +675,30 @@ namespace Luban.Job.Cfg.DataCreators
             {
                 throw new Exception();
             }
+        }
+
+        private List<DType> CreateBeanFields(DefBean bean, ExcelStream stream)
+        {
+            var list = new List<DType>();
+            foreach (DefField f in bean.HierarchyFields)
+            {
+                try
+                {
+                    list.Add(f.CType.Apply(ExcelStreamDataCreator.Ins, stream));
+                }
+                catch (DataCreateException dce)
+                {
+                    dce.Push(bean, f);
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    var dce = new DataCreateException(e, stream.LastReadDataInfo);
+                    dce.Push(bean, f);
+                    throw dce;
+                }
+            }
+            return list;
         }
     }
 }
