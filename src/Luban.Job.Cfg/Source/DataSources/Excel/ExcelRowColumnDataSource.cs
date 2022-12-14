@@ -62,7 +62,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
                     {
                         TitleRow row = r.Row;
                         string tagStr = r.Tag;
-                        if (DataUtil.IsIgnoreTag(tagStr))
+                        if (int.Parse(tagStr) < 4)
                         {
                             continue;
                         }

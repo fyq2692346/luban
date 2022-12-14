@@ -141,11 +141,11 @@ namespace Luban.Job.Cfg.DataSources.Excel
                 FromIndex = 0,
                 ToIndex = cells.Select(r => r.Count).Max() - 1
             };
-
-            if (!TryFindTopTitle(cells, out var topTitleRowIndex))
-            {
-                throw new Exception($"没有定义任何有效 标题行");
-            }
+            int topTitleRowIndex = 0;
+            // if (!TryFindTopTitle(cells, out var topTitleRowIndex))
+            // {
+            //     throw new Exception($"没有定义任何有效 标题行");
+            // }
             //titleRowNum = GetTitleRowNum(mergeCells, orientRow);
 
             ParseSubTitles(rootTitle, cells, mergeCells, orientRow, topTitleRowIndex + 1);
@@ -383,7 +383,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
             tableName = "";
 
             // meta 行 必须以 ##为第一个单元格内容,紧接着 key:value 形式 表达meta属性
-            if (string.IsNullOrEmpty(metaStr) || !metaStr.StartsWith("##"))
+            if (string.IsNullOrEmpty(metaStr))//|| !metaStr.StartsWith("##"))
             {
                 return false;
             }
@@ -464,7 +464,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
                 return false;
             }
             var s = row[0].Value?.ToString()?.Trim();
-            return !string.IsNullOrEmpty(s) && s.StartsWith("##");
+            return !string.IsNullOrEmpty(s); //&& s.StartsWith("##");
         }
 
         private static bool IsRowTagEqual(List<Cell> row, string tag)
@@ -563,7 +563,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
             }
             var cells = ParseRawSheetContent(reader, orientRow, true);
             var title = ParseTitle(cells, reader.MergeCells, orientRow);
-            int typeRowIndex = cells.FindIndex(row => IsTypeRow(row));
+            int typeRowIndex = 1;
 
             if (typeRowIndex < 0)
             {
@@ -572,7 +572,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
             List<Cell> typeRow = cells[typeRowIndex];
             
             // 先找 ##desc 行，再找##comment行，最后找 ##type的下一行
-            List<Cell> descRow = cells.Find(row => IsRowTagEqual(row, "##desc"));
+            List<Cell> descRow = cells[2];
             if (descRow == null)
             {
                 descRow = cells.Find(row => IsRowTagEqual(row, "##comment"));
@@ -581,7 +581,7 @@ namespace Luban.Job.Cfg.DataSources.Excel
             {
                 descRow = cells.Count > 1 ? cells.Skip(1).FirstOrDefault(row => IsRowTagEqual(row, "##")) : null;
             }
-            List<Cell> groupRow = cells.Find(row => IsGroupRow(row));
+            List<Cell> groupRow =cells[3];
             var fields = new Dictionary<string, FieldInfo>();
             foreach (var subTitle in title.SubTitleList)
             {

@@ -37,16 +37,16 @@ namespace Luban.Job.Cfg.DataSources.Excel
         {
             var cells = rawSheet.Cells;
             Title title = rawSheet.Title;
-
+            int index = 0;
             if (!title.HierarchyMultiRows)
             {
-                foreach (var row in cells)
+                for (int i = 0; i < cells.Count; i++)
                 {
-                    if (IsBlankRow(row, title))
+                    if (IsBlankRow(cells[i], title))
                     {
                         continue;
                     }
-                    Rows.Add((GetRowTag(row), ParseOneLineTitleRow(title, row)));
+                    Rows.Add((i.ToString(), ParseOneLineTitleRow(title, cells[i])));
                 }
             }
             else
