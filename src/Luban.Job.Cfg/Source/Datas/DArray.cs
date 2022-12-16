@@ -10,12 +10,14 @@ namespace Luban.Job.Cfg.Datas
         public TArray Type { get; }
         public List<DType> Datas { get; }
 
+        public string Value { get; }
         public override string TypeName => "array";
 
-        public DArray(TArray type, List<DType> datas)
+        public DArray(TArray type, List<DType> datas,string value)
         {
             this.Type = type;
             this.Datas = datas;
+            this.Value = value;
         }
 
         public override bool Equals(object obj)

@@ -182,6 +182,17 @@ namespace Luban.Job.Cfg.DataSources.Excel
             return sb.ToString();
         }
 
+        public string ToRawToString()
+        {
+            var sb = new StringBuilder();
+            for (int i = _curIndex; i <= _toIndex; i++)
+            {
+                sb.Append(_datas[i].Value);
+            }
+
+            return sb.ToString();
+        }
+        
         public bool TryRead(out object data)
         {
             data = null;

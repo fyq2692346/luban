@@ -168,7 +168,7 @@ namespace Luban.Job.Cfg.DataCreators
                     throw new Exception($"结构:'{implBean.FullName}' 字段:'{f.Name}' 缺失");
                 }
             }
-            return new DBean(type, implBean, fields);
+            return new DBean(type, implBean, fields,x.ToString());
         }
 
         private List<DType> ReadList(TType type, JsonElement e, DefAssembly ass)
@@ -183,12 +183,12 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TArray type, JsonElement x, DefAssembly ass)
         {
-            return new DArray(type, ReadList(type.ElementType, x, ass));
+            return new DArray(type, ReadList(type.ElementType, x, ass),x.ToString());
         }
 
         public DType Accept(TList type, JsonElement x, DefAssembly ass)
         {
-            return new DList(type, ReadList(type.ElementType, x, ass));
+            return new DList(type, ReadList(type.ElementType, x, ass),x.ToString());
         }
 
         public DType Accept(TSet type, JsonElement x, DefAssembly ass)

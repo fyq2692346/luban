@@ -206,7 +206,7 @@ namespace Luban.Job.Cfg.DataCreators
                     throw new Exception($"结构:{implBean.FullName} 字段:{f.Name} 缺失");
                 }
             }
-            return new DBean(type, implBean, fields);
+            return new DBean(type, implBean, fields,table.ToString());
         }
 
         private List<DType> ReadList(TType type, LuaTable e, DefAssembly ass)
@@ -221,12 +221,12 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TArray type, object x, DefAssembly ass)
         {
-            return new DArray(type, ReadList(type.ElementType, (LuaTable)x, ass));
+            return new DArray(type, ReadList(type.ElementType, (LuaTable)x, ass),x.ToString());
         }
 
         public DType Accept(TList type, object x, DefAssembly ass)
         {
-            return new DList(type, ReadList(type.ElementType, (LuaTable)x, ass));
+            return new DList(type, ReadList(type.ElementType, (LuaTable)x, ass),x.ToString());
         }
 
         public DType Accept(TSet type, object x, DefAssembly ass)

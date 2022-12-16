@@ -158,7 +158,7 @@ namespace Luban.Job.Cfg.DataCreators
                 }
 
             }
-            return new DBean(type, implBean, fields);
+            return new DBean(type, implBean, fields,x.ToString());
         }
 
         private List<DType> ReadList(TType type, YamlSequenceNode x, DefAssembly ass)
@@ -173,12 +173,12 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TArray type, YamlNode x, DefAssembly y)
         {
-            return new DArray(type, ReadList(type.ElementType, (YamlSequenceNode)x, y));
+            return new DArray(type, ReadList(type.ElementType, (YamlSequenceNode)x, y),y.ToString());
         }
 
         public DType Accept(TList type, YamlNode x, DefAssembly y)
         {
-            return new DList(type, ReadList(type.ElementType, (YamlSequenceNode)x, y));
+            return new DList(type, ReadList(type.ElementType, (YamlSequenceNode)x, y),y.ToString());
         }
 
         public DType Accept(TSet type, YamlNode x, DefAssembly y)

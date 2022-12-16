@@ -16,13 +16,16 @@ namespace Luban.Job.Cfg.Datas
 
         public List<DType> Fields { get; }
 
+        public string Value { get; }
+        
         public override string TypeName => "bean";
 
-        public DBean(TBean defType, DefBean implType, List<DType> fields)
+        public DBean(TBean defType, DefBean implType, List<DType> fields,string value)
         {
             this.TType = defType;
             this.ImplType = implType;
             this.Fields = fields;
+            this.Value = value;
         }
 
         public override bool Equals(object obj)

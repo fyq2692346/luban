@@ -143,7 +143,7 @@ namespace Luban.Job.Cfg.DataCreators
                 }
 
             }
-            return new DBean(type, implBean, fields);
+            return new DBean(type, implBean, fields,x.ToString());
         }
 
         private List<DType> ReadList(TType type, XElement x, DefAssembly ass)
@@ -158,12 +158,12 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TArray type, XElement x, DefAssembly ass)
         {
-            return new DArray(type, ReadList(type.ElementType, x, ass));
+            return new DArray(type, ReadList(type.ElementType, x, ass),x.ToString());
         }
 
         public DType Accept(TList type, XElement x, DefAssembly ass)
         {
-            return new DList(type, ReadList(type.ElementType, x, ass));
+            return new DList(type, ReadList(type.ElementType, x, ass),x.ToString());
         }
 
         public DType Accept(TSet type, XElement x, DefAssembly ass)

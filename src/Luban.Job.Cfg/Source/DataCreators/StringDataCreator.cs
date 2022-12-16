@@ -177,17 +177,17 @@ namespace Luban.Job.Cfg.DataCreators
             {
                 strings = TrySep(type, x);
             }
-            return new DBean(type, originBean, CreateBeanFields(originBean, strings));
+            return new DBean(type, originBean, CreateBeanFields(originBean, strings),x);
         }
 
         public DType Accept(TArray type, string x)
         {
-            return new DArray(type, ReadList(type, type.ElementType, x));
+            return new DArray(type, ReadList(type, type.ElementType, x),x);
         }
 
         public DType Accept(TList type, string x)
         {
-            return new DList(type, ReadList(type, type.ElementType, x));
+            return new DList(type, ReadList(type, type.ElementType, x),x);
         }
 
         public DType Accept(TSet type, string x)

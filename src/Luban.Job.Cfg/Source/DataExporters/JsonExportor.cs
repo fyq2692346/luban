@@ -20,6 +20,7 @@ namespace Luban.Job.Cfg.DataExporters
             {
                 d.Data.Apply(this, x);
             }
+
             x.WriteEndArray();
         }
 
@@ -100,33 +101,43 @@ namespace Luban.Job.Cfg.DataExporters
 
         public virtual void Accept(DBean type, Utf8JsonWriter x)
         {
-            x.WriteStartObject();
-
-            if (type.Type.IsAbstractType)
+            if (string.IsNullOrEmpty(type.Value))
             {
-                x.WritePropertyName(DefBean.JSON_TYPE_NAME_KEY);
-                x.WriteStringValue(DataUtil.GetImplTypeName(type));
-            }
 
-            var defFields = type.ImplType.HierarchyFields;
-            int index = 0;
-            foreach (var d in type.Fields)
+                x.WriteStartObject();
+
+                if (type.Type.IsAbstractType)
+                {
+                    x.WritePropertyName(DefBean.JSON_TYPE_NAME_KEY);
+                    x.WriteStringValue(DataUtil.GetImplTypeName(type));
+                }
+
+                var defFields = type.ImplType.HierarchyFields;
+                int index = 0;
+
+                foreach (var d in type.Fields)
+                {
+                    var defField = (DefField)defFields[index++];
+
+                    // 特殊处理 bean 多态类型
+                    // 另外，不生成  xxx:null 这样
+                    if (d == null || !defField.NeedExport)
+                    {
+                        //x.WriteNullValue();
+                    }
+                    else
+                    {
+                        x.WritePropertyName(defField.Name);
+                        d.Apply(this, x);
+                    }
+                }
+
+                x.WriteEndObject();
+            }
+            else
             {
-                var defField = (DefField)defFields[index++];
-
-                // 特殊处理 bean 多态类型
-                // 另外，不生成  xxx:null 这样
-                if (d == null || !defField.NeedExport)
-                {
-                    //x.WriteNullValue();
-                }
-                else
-                {
-                    x.WritePropertyName(defField.Name);
-                    d.Apply(this, x);
-                }
+                x.WriteStringValue(type.Value);
             }
-            x.WriteEndObject();
         }
 
         public void WriteList(List<DType> datas, Utf8JsonWriter x)
@@ -136,17 +147,20 @@ namespace Luban.Job.Cfg.DataExporters
             {
                 d.Apply(this, x);
             }
+
             x.WriteEndArray();
         }
 
         public void Accept(DArray type, Utf8JsonWriter x)
         {
-            WriteList(type.Datas, x);
+            x.WriteStringValue(type.Value);
+            //WriteList(type.Datas, x);
         }
 
         public void Accept(DList type, Utf8JsonWriter x)
         {
-            WriteList(type.Datas, x);
+            x.WriteStringValue(type.Value);
+            //WriteList(type.Datas, x);
         }
 
         public void Accept(DSet type, Utf8JsonWriter x)
@@ -164,6 +178,7 @@ namespace Luban.Job.Cfg.DataExporters
                 d.Value.Apply(this, x);
                 x.WriteEndArray();
             }
+
             x.WriteEndArray();
         }
 

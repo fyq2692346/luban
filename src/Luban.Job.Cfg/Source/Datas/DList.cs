@@ -9,13 +9,15 @@ namespace Luban.Job.Cfg.Datas
     {
         public TList Type { get; }
         public List<DType> Datas { get; }
-
+        
+        public string Value { get; }
         public override string TypeName => "list";
 
-        public DList(TList type, List<DType> datas)
+        public DList(TList type, List<DType> datas,string value)
         {
             this.Type = type;
             this.Datas = datas;
+            this.Value = value;
         }
 
 

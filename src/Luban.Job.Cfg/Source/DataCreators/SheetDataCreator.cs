@@ -21,12 +21,12 @@ namespace Luban.Job.Cfg.DataCreators
 
         private bool CheckNull(bool nullable, object o)
         {
-            return nullable && (o == null || (o is string s && s == "null"));
+            return nullable && (o == null || (o is string s && s == "null") || (o is string str && str == "-1"));
         }
-
+        
         private bool CheckDefault(object o)
         {
-            return o == null || (o is string s && s.Length == 0);
+            return o == null || (o is string s && s.Length == 0) ;
         }
 
         private void ThrowIfNonEmpty(TitleRow row)
@@ -472,7 +472,7 @@ namespace Luban.Job.Cfg.DataCreators
                     DefBean implType = DataUtil.GetImplTypeByNameOrAlias(originBean, subType);
                     if (valueTitle == null)
                     {
-                        return new DBean(type, implType, CreateBeanFields(implType, sheet, row));
+                        return new DBean(type, implType, CreateBeanFields(implType, sheet, row),"");
                     }
                     else
                     {
@@ -484,7 +484,7 @@ namespace Luban.Job.Cfg.DataCreators
                             {
                                 return null;
                             }
-                            return new DBean(type, implType, CreateBeanFields(implType, s));
+                            return new DBean(type, implType, CreateBeanFields(implType, s),"");
                         }
                         else if (valueTitle.Rows != null)
                         {
@@ -493,7 +493,7 @@ namespace Luban.Job.Cfg.DataCreators
                             {
                                 return null;
                             }
-                            return new DBean(type, implType, CreateBeanFields(implType, s));
+                            return new DBean(type, implType, CreateBeanFields(implType, s),"");
                         }
                         else
                         {
@@ -521,7 +521,7 @@ namespace Luban.Job.Cfg.DataCreators
                         }
                     }
 
-                    return new DBean(type, originBean, CreateBeanFields(originBean, sheet, row));
+                    return new DBean(type, originBean, CreateBeanFields(originBean, sheet, row),"");
                 }
             }
             else if (row.Elements != null)
@@ -608,12 +608,12 @@ namespace Luban.Job.Cfg.DataCreators
         public DType Accept(TArray type, RowColumnSheet sheet, TitleRow row)
         {
             //string sep = DataUtil.GetSep(type);
-            return new DArray(type, ReadCollectionDatas(type, type.ElementType, sheet, row));
+            return new DArray(type, ReadCollectionDatas(type, type.ElementType, sheet, row),row.Current.ToString());
         }
 
         public DType Accept(TList type, RowColumnSheet sheet, TitleRow row)
         {
-            return new DList(type, ReadCollectionDatas(type, type.ElementType, sheet, row));
+            return new DList(type, ReadCollectionDatas(type, type.ElementType, sheet, row),row.Current.ToString());
         }
 
         public DType Accept(TSet type, RowColumnSheet sheet, TitleRow row)
