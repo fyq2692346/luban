@@ -222,17 +222,17 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TVector2 type, JsonElement x, DefAssembly ass)
         {
-            return new DVector2(new System.Numerics.Vector2(x.GetProperty("x").GetSingle(), x.GetProperty("y").GetSingle()));
+            return new DVector2(new System.Numerics.Vector2(x.GetProperty("x").GetSingle(), x.GetProperty("y").GetSingle()),x.ToString());
         }
 
         public DType Accept(TVector3 type, JsonElement x, DefAssembly ass)
         {
-            return new DVector3(new System.Numerics.Vector3(x.GetProperty("x").GetSingle(), x.GetProperty("y").GetSingle(), x.GetProperty("z").GetSingle()));
+            return new DVector3(new System.Numerics.Vector3(x.GetProperty("x").GetSingle(), x.GetProperty("y").GetSingle(), x.GetProperty("z").GetSingle()),x.ToString());
         }
 
         public DType Accept(TVector4 type, JsonElement x, DefAssembly ass)
         {
-            return new DVector4(new System.Numerics.Vector4(x.GetProperty("x").GetSingle(), x.GetProperty("y").GetSingle(), x.GetProperty("z").GetSingle(), x.GetProperty("w").GetSingle()));
+            return new DVector4(new System.Numerics.Vector4(x.GetProperty("x").GetSingle(), x.GetProperty("y").GetSingle(), x.GetProperty("z").GetSingle(), x.GetProperty("w").GetSingle()),x.ToString());
         }
     }
 }

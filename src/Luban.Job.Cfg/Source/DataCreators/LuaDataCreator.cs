@@ -253,19 +253,19 @@ namespace Luban.Job.Cfg.DataCreators
         public DType Accept(TVector2 type, object x, DefAssembly ass)
         {
             var table = (LuaTable)x;
-            return new DVector2(new Vector2(ToFloat(table["x"]), ToFloat(table["y"])));
+            return new DVector2(new Vector2(ToFloat(table["x"]), ToFloat(table["y"])),x.ToString());
         }
 
         public DType Accept(TVector3 type, object x, DefAssembly ass)
         {
             var table = (LuaTable)x;
-            return new DVector3(new Vector3(ToFloat(table["x"]), ToFloat(table["y"]), ToFloat(table["z"])));
+            return new DVector3(new Vector3(ToFloat(table["x"]), ToFloat(table["y"]), ToFloat(table["z"])),x.ToString());
         }
 
         public DType Accept(TVector4 type, object x, DefAssembly ass)
         {
             var table = (LuaTable)x;
-            return new DVector4(new Vector4(ToFloat(table["x"]), ToFloat(table["y"]), ToFloat(table["z"]), ToFloat(table["w"])));
+            return new DVector4(new Vector4(ToFloat(table["x"]), ToFloat(table["y"]), ToFloat(table["z"]), ToFloat(table["w"])),x.ToString());
         }
 
         public DType Accept(TDateTime type, object x, DefAssembly ass)

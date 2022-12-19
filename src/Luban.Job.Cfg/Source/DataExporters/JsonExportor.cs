@@ -184,29 +184,32 @@ namespace Luban.Job.Cfg.DataExporters
 
         public void Accept(DVector2 type, Utf8JsonWriter x)
         {
-            x.WriteStartObject();
-            x.WriteNumber("x", type.Value.X);
-            x.WriteNumber("y", type.Value.Y);
-            x.WriteEndObject();
+            x.WriteStringValue(type.StringValue);
+            // x.WriteStartObject();
+            // x.WriteNumber("x", type.Value.X);
+            // x.WriteNumber("y", type.Value.Y);
+            // x.WriteEndObject();
         }
 
         public void Accept(DVector3 type, Utf8JsonWriter x)
         {
-            x.WriteStartObject();
-            x.WriteNumber("x", type.Value.X);
-            x.WriteNumber("y", type.Value.Y);
-            x.WriteNumber("z", type.Value.Z);
-            x.WriteEndObject();
+            x.WriteStringValue(type.StringValue);
+            // x.WriteStartObject();
+            // x.WriteNumber("x", type.Value.X);
+            // x.WriteNumber("y", type.Value.Y);
+            // x.WriteNumber("z", type.Value.Z);
+            // x.WriteEndObject();
         }
 
         public void Accept(DVector4 type, Utf8JsonWriter x)
         {
-            x.WriteStartObject();
-            x.WriteNumber("x", type.Value.X);
-            x.WriteNumber("y", type.Value.Y);
-            x.WriteNumber("z", type.Value.Z);
-            x.WriteNumber("w", type.Value.W);
-            x.WriteEndObject();
+            x.WriteStringValue(type.StringValue);
+            // x.WriteStartObject();
+            // x.WriteNumber("x", type.Value.X);
+            // x.WriteNumber("y", type.Value.Y);
+            // x.WriteNumber("z", type.Value.Z);
+            // x.WriteNumber("w", type.Value.W);
+            // x.WriteEndObject();
         }
 
         public virtual void Accept(DDateTime type, Utf8JsonWriter x)

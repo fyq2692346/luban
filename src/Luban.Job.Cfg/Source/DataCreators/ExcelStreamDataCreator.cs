@@ -354,6 +354,25 @@ namespace Luban.Job.Cfg.DataCreators
             var str = stream.First;
             if (CheckNull(true, str))
             {
+                foreach (DefField f in bean.HierarchyFields)
+                {
+                    try
+                    {
+                        list.Add(f.CType.Apply(StringDataCreator.Ins,"-1"));
+                    }  
+                    catch (DataCreateException dce)
+                    {
+                        dce.Push(bean, f);
+                        throw;
+                    }
+                    catch (Exception e)
+                    {
+                        var dce = new DataCreateException(e, stream.LastReadDataInfo);
+                        dce.Push(bean, f);
+                        throw dce;
+                    }
+                }
+                
                 return list;
             }
             foreach (DefField f in bean.HierarchyFields)

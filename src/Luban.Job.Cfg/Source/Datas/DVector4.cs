@@ -5,12 +5,13 @@ namespace Luban.Job.Cfg.Datas
 {
     public class DVector4 : DType<Vector4>
     {
-        public static DVector4 Default { get; } = new DVector4(default);
+        public static DVector4 Default { get; } = new DVector4(default,"0,0,0,0");
 
         public override string TypeName => "vector4";
-
-        public DVector4(Vector4 x) : base(x)
+        public string StringValue { get; }
+        public DVector4(Vector4 x,string value) : base(x)
         {
+            this.StringValue = value;
         }
 
         public override void Apply<T>(IDataActionVisitor<T> visitor, T x)

@@ -219,7 +219,7 @@ namespace Luban.Job.Cfg.DataCreators
 
         public DType Accept(TVector2 type, YamlNode x, DefAssembly y)
         {
-            return new DVector2(new System.Numerics.Vector2(ParseChildFloatValue(x, s_xNodeName), ParseChildFloatValue(x, s_yNodeName)));
+            return new DVector2(new System.Numerics.Vector2(ParseChildFloatValue(x, s_xNodeName), ParseChildFloatValue(x, s_yNodeName)),x.ToString());
         }
 
         public DType Accept(TVector3 type, YamlNode x, DefAssembly y)
@@ -227,7 +227,7 @@ namespace Luban.Job.Cfg.DataCreators
             return new DVector3(new System.Numerics.Vector3(
                 ParseChildFloatValue(x, s_xNodeName),
                 ParseChildFloatValue(x, s_yNodeName),
-                ParseChildFloatValue(x, s_zNodeName)));
+                ParseChildFloatValue(x, s_zNodeName)),x.ToString());
         }
 
         public DType Accept(TVector4 type, YamlNode x, DefAssembly y)
@@ -236,7 +236,7 @@ namespace Luban.Job.Cfg.DataCreators
                 ParseChildFloatValue(x, s_xNodeName),
                 ParseChildFloatValue(x, s_yNodeName),
                 ParseChildFloatValue(x, s_zNodeName),
-                ParseChildFloatValue(x, s_wNodeName)));
+                ParseChildFloatValue(x, s_wNodeName)),x.ToString());
         }
 
         public DType Accept(TDateTime type, YamlNode x, DefAssembly y)

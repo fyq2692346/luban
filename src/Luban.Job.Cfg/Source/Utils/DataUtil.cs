@@ -32,7 +32,7 @@ namespace Luban.Job.Cfg.Utils
             {
                 throw new Exception($"'{x}' 不是合法vector2类型数据");
             }
-            return new DVector2(new System.Numerics.Vector2(float.Parse(values[0]), float.Parse(values[1])));
+            return new DVector2(new System.Numerics.Vector2(float.Parse(values[0]), float.Parse(values[1])),x);
 
         }
 
@@ -43,7 +43,7 @@ namespace Luban.Job.Cfg.Utils
             {
                 throw new Exception($"'{x}' 不是合法vector3类型数据");
             }
-            return new DVector3(new System.Numerics.Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2])));
+            return new DVector3(new System.Numerics.Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2])),x);
 
         }
 
@@ -54,7 +54,7 @@ namespace Luban.Job.Cfg.Utils
             {
                 throw new Exception($"'{x}' 不是合法vector4类型数据");
             }
-            return new DVector4(new System.Numerics.Vector4(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])));
+            return new DVector4(new System.Numerics.Vector4(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3])),x);
         }
 
         public static DType CreateBytes(string x)
