@@ -83,12 +83,12 @@ namespace Luban.Job.Common.TypeVisitors
 
         public string Accept(TArray type)
         {
-            return "readList";
+            return "readListInt";
         }
 
         public string Accept(TList type)
         {
-            return "readList";
+            return "readListInt";
         }
 
         public string Accept(TSet type)

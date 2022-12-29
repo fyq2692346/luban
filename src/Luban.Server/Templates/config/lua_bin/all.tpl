@@ -48,6 +48,15 @@ local function InitTypes(methods)
     end
 
     local readArray = readList
+    
+     local function readListInt(bs)
+            local list = {}
+            local v
+            for i = 1, readSize(bs) do
+                tinsert(list,readInt(bs))
+            end
+            return list
+        end
 
     local function readSet(bs, keyFun)
         local set = {}
