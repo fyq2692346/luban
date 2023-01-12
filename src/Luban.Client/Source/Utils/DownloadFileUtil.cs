@@ -35,7 +35,7 @@ namespace Luban.Client.Common.Utils
             }
             await Task.WhenAll(tasks);
 
-            FileCleaner.Clean(outputDir, newFiles);
+            //FileCleaner.Clean(outputDir, newFiles);
         }
 
         public static async Task DownloadGeneratedFile(FileInfo file)
