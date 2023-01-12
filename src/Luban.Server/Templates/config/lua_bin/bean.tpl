@@ -1,3 +1,7 @@
+local setmetatable = setmetatable
+local pairs = pairs
+local ipairs = ipairs
+local tinsert = table.insert
 
 local function InitTypes(methods)
     local readBool = methods.readBool
