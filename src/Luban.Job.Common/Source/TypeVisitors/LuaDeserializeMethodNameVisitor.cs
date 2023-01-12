@@ -78,7 +78,15 @@ namespace Luban.Job.Common.TypeVisitors
 
         public string Accept(TBean type)
         {
-            return $"beans['{type.Bean.FullName}']._deserialize";
+            if (type.Bean.Name == "IdCount")
+            {
+                return "readIdCount";
+            }
+            else
+            {
+                return $"beans['{type.Bean.FullName}']._deserialize";
+            }
+            
         }
 
         public string Accept(TArray type)

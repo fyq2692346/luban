@@ -57,20 +57,20 @@ namespace Luban.Job.Cfg.Generate
                 }));
             }
 
-            ctx.Tasks.Add(Task.Run(() =>
-            {
-                var module = ctx.TopModule;
-                var name = ctx.TargetService.Manager;
-                var body = ctx.Render.RenderService(name, module, ctx.ExportTables);
-                if (string.IsNullOrWhiteSpace(body))
-                {
-                    return;
-                }
-                var content = FileHeaderUtil.ConcatAutoGenerationHeader(body, ctx.Lan);
-                var file = RenderFileUtil.GetDefTypePath(name, ctx.Lan);
-                var md5 = CacheFileUtil.GenMd5AndAddCache(file, content);
-                ctx.GenCodeFilesInOutputCodeDir.Add(new FileInfo() { FilePath = file, MD5 = md5 });
-            }));
+            // ctx.Tasks.Add(Task.Run(() =>
+            // {
+            //     var module = ctx.TopModule;
+            //     var name = ctx.TargetService.Manager;
+            //     var body = ctx.Render.RenderService(name, module, ctx.ExportTables);
+            //     if (string.IsNullOrWhiteSpace(body))
+            //     {
+            //         return;
+            //     }
+            //     var content = FileHeaderUtil.ConcatAutoGenerationHeader(body, ctx.Lan);
+            //     var file = RenderFileUtil.GetDefTypePath(name, ctx.Lan);
+            //     var md5 = CacheFileUtil.GenMd5AndAddCache(file, content);
+            //     ctx.GenCodeFilesInOutputCodeDir.Add(new FileInfo() { FilePath = file, MD5 = md5 });
+            // }));
         }
 
         protected void GenerateCodeMonolithic(GenContext ctx, string outputFile, List<string> fileContent, Action<List<string>> preContent, Action<List<string>> postContent)

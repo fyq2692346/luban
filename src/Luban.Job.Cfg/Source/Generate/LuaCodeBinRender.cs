@@ -19,10 +19,16 @@ namespace Luban.Job.Cfg.Generate
             var enums = types.Where(t => t is DefEnum).ToList();
             var beans = types.Where(t => t is DefBean).ToList();
             var tables = types.Where(t => t is DefTable).ToList();
-            var template = StringTemplateManager.Ins.GetOrAddTemplate("common/lua/base_all", fn =>
-            Template.Parse(StringTemplateManager.Ins.GetTemplateString("common/lua/base")
-            + StringTemplateManager.Ins.GetTemplateString("config/lua_bin/all")));
-            return template.RenderCode(new { Enums = enums, Beans = beans, Tables = tables });
+            // var template = StringTemplateManager.Ins.GetOrAddTemplate("common/lua/base_all", fn =>
+            // Template.Parse(StringTemplateManager.Ins.GetTemplateString("common/lua/base")
+            // + StringTemplateManager.Ins.GetTemplateString("config/lua_bin/bean.tpl")));
+            // return template.RenderCode(new { Enums = enums, Beans = beans, Tables = tables });
+            var template = GetConfigTemplate("all");
+            var result = template.RenderCode(new {
+                Enums = enums.Select(e => Render((DefEnum)e)).ToList(),
+                Beans = beans.Select(b=>Render((DefBean)b)).ToList(),
+            });
+            return result;
         }
     }
 }
