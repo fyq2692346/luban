@@ -44,6 +44,8 @@ namespace Luban.Job.Cfg.Defs
         public string Sep { get; }
 
         public List<DefField> HierarchyExportFields { get; private set; }
+        
+        public List<TType> BeanExportTypes { get; private set; }
 
         public List<DefField> ExportFields { get; private set; }
 
@@ -185,8 +187,11 @@ namespace Luban.Job.Cfg.Defs
             CollectHierarchyFields(HierarchyFields);
             this.ExportFields = this.Fields.Select(f => (DefField)f).Where(f => f.NeedExport).ToList();
             this.HierarchyExportFields = this.HierarchyFields.Select(f => (DefField)f).Where(f => f.NeedExport).ToList();
+            
         }
 
+        
+        
         public override void Compile()
         {
             var cs = new List<DefBeanBase>();
@@ -225,8 +230,35 @@ namespace Luban.Job.Cfg.Defs
                 }
                 f.AutoId = nextAutoId;
             }
+            SelectBeanFields(this.HierarchyExportFields);
         }
-
+        public void SelectBeanFields(List<DefField> fields)
+        {
+            this.BeanExportTypes = new List<TType>();
+            foreach (var field in fields)
+            {
+                if (field.CType.IsBean)
+                {
+                    if (!this.BeanExportTypes.Contains(field.CType))
+                    {
+                        this.BeanExportTypes.Add(field.CType);
+                    }
+                }
+                else
+                {
+                    if (field.CType.IsCollection)
+                    {
+                        if (field.CType.ElementType.IsBean)
+                        {
+                            if (!this.BeanExportTypes.Contains(field.CType.ElementType))
+                            {
+                                this.BeanExportTypes.Add(field.CType.ElementType);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         public override void PostCompile()
         {
             foreach (var field in HierarchyFields)

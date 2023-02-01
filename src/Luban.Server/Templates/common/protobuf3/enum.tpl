@@ -1,4 +1,10 @@
-﻿{{~
+﻿syntax = "proto3";
+
+package {{x.full_name_with_top_module}};
+
+option java_multiple_files = true;
+
+{{~
     name = x.name
     namespace_with_top_module = x.namespace_with_top_module
     comment = x.comment

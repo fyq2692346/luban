@@ -18,7 +18,7 @@ namespace Luban.Job.Common.Utils
                 case ELanguage.JAVASCRIPT: return fullName + ".js";
                 case ELanguage.TYPESCRIPT: return fullName.Replace('.', '/') + ".ts";
                 case ELanguage.RUST: return fullName.Replace('.', '_') + ".rs";
-                case ELanguage.PROTOBUF: return fullName.Replace('.', '_') + ".pb";
+                case ELanguage.PROTOBUF: return fullName.Replace('.', '_') + ".proto";
                 case ELanguage.GDSCRIPT: return fullName.Replace('.', '_') + ".gd";
                 default: throw new NotSupportedException();
             }

@@ -2,6 +2,8 @@
 
 package {{x.namespace}};
 
+option java_multiple_files = true;
+
 // luban internal types begin
 message Vector2 {
     float x = 1;
