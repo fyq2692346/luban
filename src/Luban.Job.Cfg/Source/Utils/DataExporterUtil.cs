@@ -52,6 +52,14 @@ namespace Luban.Job.Cfg.Utils
                     ThreadLocalTemporalByteBufPool.Free(buf);
                     return bytes;
                 }
+                case "data_protobuf_bidx":
+                {
+                    var buf = ThreadLocalTemporalByteBufPool.Alloc(1024 * 1024);
+                    ProtobufIndexKeyExportor.Ins.WriteList(table,records,buf);
+                    var bytes = buf.CopyData();
+                    ThreadLocalTemporalByteBufPool.Free(buf);
+                    return bytes;
+                }
                 case "data_json":
                 case "data_json2":
                 {
@@ -135,9 +143,17 @@ namespace Luban.Job.Cfg.Utils
                 }
                 case "data_protobuf_bin":
                 {
-                    var ms = new MemoryStream();
-                    ProtobufBinExportor.Ins.WriteList(table, records, ms);
-                    return DataUtil.StreamToBytes(ms);
+                    var buf = new MemoryStream();
+                    ProtobufBinExportor.Ins.WriteList(table, records, buf);
+                    //var bytes = buf.CopyData();
+                    return buf.ToArray();
+                }
+                case "data_protobuf_one_bin":
+                {
+                    var buf = new MemoryStream();
+                    ProtoBufBinOneExportor.Ins.WriteList(table, records, buf);
+                    //var bytes = buf.CopyData();
+                    return buf.ToArray();
                 }
                 case "data_protobuf_json":
                 {

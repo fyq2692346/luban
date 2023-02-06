@@ -1,4 +1,5 @@
-﻿using Google.Protobuf;
+﻿using Bright.Serialization;
+using Google.Protobuf;
 using Luban.Job.Cfg.Datas;
 using Luban.Job.Cfg.DataSources;
 using Luban.Job.Cfg.DataVisitors;
@@ -19,15 +20,17 @@ namespace Luban.Job.Cfg.DataExporters
     {
         public static ProtobufBinExportor Ins { get; } = new();
 
-        public void WriteList(DefTable table, List<Record> datas, MemoryStream x)
+        public void WriteList(DefTable table, List<Record> datas, MemoryStream bytes)
         {
-            var cos = new CodedOutputStream(x);
             foreach (var d in datas)
             {
+                var ms = new MemoryStream();
+                var cos = new CodedOutputStream(ms);
                 cos.WriteTag(1, WireFormat.WireType.LengthDelimited);
                 d.Data.Apply(this, cos);
+                cos.Flush();
+                bytes.Write(ms.ToArray());
             }
-            cos.Flush();
         }
 
         public void Accept(DBool type, CodedOutputStream x)
@@ -128,7 +131,7 @@ namespace Luban.Job.Cfg.DataExporters
             temp.WriteFloat(type.Value.Y);
             temp.Flush();
             ms.Seek(0, SeekOrigin.Begin);
-            x.WriteBytes(ByteString.FromStream(ms));
+            x.WriteBytes(FromStream(ms));
             FreeMemoryStream(ms);
         }
 
@@ -144,7 +147,7 @@ namespace Luban.Job.Cfg.DataExporters
             temp.WriteFloat(type.Value.Z);
             temp.Flush();
             ms.Seek(0, SeekOrigin.Begin);
-            x.WriteBytes(ByteString.FromStream(ms));
+            x.WriteBytes(FromStream(ms));
             FreeMemoryStream(ms);
         }
 
@@ -162,7 +165,7 @@ namespace Luban.Job.Cfg.DataExporters
             temp.WriteFloat(type.Value.W);
             temp.Flush();
             ms.Seek(0, SeekOrigin.Begin);
-            x.WriteBytes(ByteString.FromStream(ms));
+            x.WriteBytes(FromStream(ms));
             FreeMemoryStream(ms);
         }
 
@@ -233,7 +236,7 @@ namespace Luban.Job.Cfg.DataExporters
             action(temp);
             temp.Flush();
             ms.Seek(0, SeekOrigin.Begin);
-            var bs = ByteString.FromStream(ms);
+            var bs = FromStream(ms);
             x.WriteBytes(bs);
             FreeMemoryStream(ms);
         }
@@ -269,7 +272,7 @@ namespace Luban.Job.Cfg.DataExporters
                 }
                 temp.Flush();
                 ms.Seek(0, SeekOrigin.Begin);
-                x.WriteBytes(ByteString.FromStream(ms));
+                x.WriteBytes(FromStream(ms));
                 FreeMemoryStream(ms);
             }
             else
@@ -314,7 +317,7 @@ namespace Luban.Job.Cfg.DataExporters
                 e.Value.Apply(this, temp);
                 temp.Flush();
                 ms.Seek(0, SeekOrigin.Begin);
-                x.WriteBytes(ByteString.FromStream(ms));
+                x.WriteBytes(FromStream(ms));
 
             }
             FreeMemoryStream(ms);
@@ -323,6 +326,13 @@ namespace Luban.Job.Cfg.DataExporters
         public void Accept(DMap type, CodedOutputStream x)
         {
             throw new NotSupportedException();
+        }
+        
+        public ByteString FromStream(Stream stream)
+        {
+            var ms = new MemoryStream((int)(stream.Length-stream.Position)); 
+            stream.CopyTo(ms);
+            return  ByteString.CopyFrom(ms.GetBuffer());
         }
     }
 }
