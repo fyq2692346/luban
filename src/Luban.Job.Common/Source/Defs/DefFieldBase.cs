@@ -68,6 +68,8 @@ namespace Luban.Job.Common.Defs
         public string Type { get; }
 
         public TType CType { get; protected set; }
+        
+        public string TypeName { get; set; }
 
         public bool IsNullable => CType.IsNullable;
 
@@ -98,6 +100,7 @@ namespace Luban.Job.Common.Defs
             AutoId = Id;
             Name = f.Name;
             Type = f.Type;
+            TypeName = f.TypeName;
             Comment = f.Comment;
             Tags = DefUtil.ParseAttrs(f.Tags);
             IgnoreNameValidation = f.IgnoreNameValidation;

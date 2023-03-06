@@ -168,6 +168,12 @@ namespace Luban.Job.Cfg.Utils
                     jsonWriter.Flush();
                     return DataUtil.StreamToBytes(ss);
                 }
+                case "data_protobuf_customize_bin":
+                {
+                    var buf = new MemoryStream();
+                    ProtobufBinCustomizeExport.Ins.WriteList(table,records,buf);
+                    return buf.ToArray();
+                }
                 case "data_msgpack":
                 {
                     var ms = new System.Buffers.ArrayBufferWriter<byte>();
@@ -236,6 +242,14 @@ namespace Luban.Job.Cfg.Utils
                 sb.Append(e.Key).Append('|').Append(e.Value).Append('\n');
             }
             return System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+        }
+
+        public static List<object> ToOutputDataList(DefTable table, List<Record> records, string dataType)
+        {
+            var buf = new MemoryStream();
+            var buf1 = new MemoryStream();
+            ProtobufBinCustomizeExport.Ins.WriteList(table,records,buf,buf1);
+            return new List<object>() { buf.ToArray(),buf1.ToArray() };
         }
     }
 }

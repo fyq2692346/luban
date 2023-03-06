@@ -453,7 +453,7 @@ namespace Luban.Job.Cfg.Defs
 
                 cf.Comment = f.Desc;
                 cf.Type = attrs[0];
-                
+                cf.TypeName = f.Type;
                 for (int i = 1; i < attrs.Length; i++)
                 {
                     var pair = attrs[i].Split('=', 2);

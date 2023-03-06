@@ -8,6 +8,8 @@ namespace Luban.Job.Common.RawDefs
         public string Name { get; set; }
 
         public string Type { get; set; }
+        
+        public string TypeName { get; set; }
 
         public string Comment { get; set; }
 
